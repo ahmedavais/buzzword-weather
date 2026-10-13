@@ -26,3 +26,7 @@ def test_shows_everything_since_hacker_news_began_quarter_by_quarter():
 
 def test_reads_as_a_choice_a_visitor_can_make():
     assert [span.label for span in Span] == ["Last 2 years", "Last 10 years", "Since 2007"]
+
+
+def test_names_the_step_between_points():
+    assert [span.step for span in Span] == ["month", "quarter", "quarter"]

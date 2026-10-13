@@ -15,6 +15,10 @@ class Span(Enum):
     def label(self) -> str:
         return self.value
 
+    @property
+    def step(self) -> str:
+        return "month" if self is Span.LAST_2_YEARS else "quarter"
+
     def periods_before(self, day: date) -> list[Period]:
         match self:
             case Span.LAST_2_YEARS:
