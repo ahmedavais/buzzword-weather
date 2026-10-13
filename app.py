@@ -12,6 +12,7 @@ MORE_TERMS = ["devops", "microservices", "scrum", "context engineering", "prompt
 MONTHS_SHOWN = 24
 MOST_TERMS = 6
 ONE_DAY_SECONDS = 24 * 60 * 60
+CHART_HEIGHT = 180
 
 
 @st.cache_data(ttl=ONE_DAY_SECONDS, show_spinner=False)
@@ -45,13 +46,11 @@ except Exception:
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
-chart = pd.DataFrame(mentions, index=pd.to_datetime([f"{month.year}-{month.month:02d}-01" for month in months]))
-st.line_chart(chart, y_label="Mentions a month", x_label=None)
-
-st.subheader("Today's forecast")
+month_starts = pd.to_datetime([f"{month.year}-{month.month:02d}-01" for month in months])
 for term, counts in mentions.items():
     weather = weather_of(counts)
-    st.markdown(f"{weather.icon} **{term}**: {weather.forecast}")
+    st.markdown(f"#### {weather.icon} {term}: {weather.forecast}")
+    st.line_chart(pd.Series(counts, index=month_starts, name=term), y_label="Mentions a month", height=CHART_HEIGHT)
 
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase, {months[0].label} to {months[-1].label}, "
