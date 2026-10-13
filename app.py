@@ -5,7 +5,7 @@ import streamlit as st
 
 from buzzword_weather.forecast import weather_of
 from buzzword_weather.hacker_news import HackerNews
-from buzzword_weather.months import Month, complete_months_before
+from buzzword_weather.periods import Month, complete_months_before
 
 STARTING_TERMS = ["vibe coding", "harness engineering", "loop engineering", "ralph loop", "platform engineering"]
 MORE_TERMS = ["devops", "microservices", "scrum", "context engineering", "prompt engineering", "agentic"]
@@ -17,7 +17,7 @@ CHART_HEIGHT = 180
 
 @st.cache_data(ttl=ONE_DAY_SECONDS, show_spinner=False)
 def monthly_mentions(term: str, months: tuple[Month, ...]) -> list[int]:
-    return HackerNews.create().mentions_by_month(term, list(months))
+    return HackerNews.create().mentions_by_period(term, list(months))
 
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")

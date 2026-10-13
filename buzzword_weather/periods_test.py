@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from buzzword_weather.months import Month, Quarter, complete_months_before, complete_quarters_before, complete_quarters_since, months_ending
+from buzzword_weather.periods import Month, Quarter, complete_months_before, complete_quarters_before, complete_quarters_since, months_ending
 
 
 def test_counts_back_from_the_month_of_the_given_day():

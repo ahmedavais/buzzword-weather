@@ -55,6 +55,9 @@ class Quarter:
         return Quarter(self.year - 1, 4) if self.quarter == 1 else Quarter(self.year, self.quarter - 1)
 
 
+Period = Month | Quarter
+
+
 def quarter_of(day: date) -> Quarter:
     return Quarter(day.year, (day.month - 1) // 3 + 1)
 
