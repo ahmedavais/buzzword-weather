@@ -18,3 +18,5 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 python_files = ["*_test.py"]
+addopts = "-m 'not integration'"
+markers = ["integration: talks to the real Hacker News search API"]
