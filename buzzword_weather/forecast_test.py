@@ -23,3 +23,7 @@ def test_calls_a_brand_new_term_a_front_moving_in():
 
 def test_reads_like_a_forecast():
     assert Weather.STORM_PASSING.forecast == "a storm passing"
+
+
+def test_shows_a_weather_icon_for_every_forecast():
+    assert {weather.icon for weather in Weather} == {"☀️", "🌦️", "⛈️", "🍃"}

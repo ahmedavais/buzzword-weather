@@ -6,6 +6,14 @@ PASSING_AT_SHARE_OF_PEAK = 0.5
 RISING_AT_MULTIPLE = 1.5
 
 
+ICONS = {
+    "calm": "☀️",
+    "a storm passing": "🌦️",
+    "a front moving in": "⛈️",
+    "a steady breeze": "🍃",
+}
+
+
 class Weather(Enum):
     CALM = "calm"
     STORM_PASSING = "a storm passing"
@@ -15,6 +23,10 @@ class Weather(Enum):
     @property
     def forecast(self) -> str:
         return self.value
+
+    @property
+    def icon(self) -> str:
+        return ICONS[self.value]
 
 
 def weather_of(monthly_mentions: list[int]) -> Weather:
