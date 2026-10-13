@@ -48,3 +48,7 @@ def test_complete_quarters_since_a_year_start_with_its_first_quarter():
     assert quarters[0] == Quarter(2007, 1)
     assert quarters[-1] == Quarter(2026, 3)
     assert len(quarters) == 79
+
+
+def test_keys_a_month_and_a_quarter_so_they_can_be_recorded():
+    assert (Month(2026, 9).key, Quarter(2026, 3).key) == ("2026-09", "2026-Q3")

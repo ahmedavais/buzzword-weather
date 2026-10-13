@@ -1,3 +1,4 @@
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
@@ -40,6 +41,7 @@ span = st.segmented_control("History", options=list(Span), format_func=lambda sp
 span = span or Span.LAST_2_YEARS
 periods = tuple(span.periods_before(date.today()))
 recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
+all_quarters = tuple(Span.SINCE_2007.periods_before(date.today()))
 
 if not terms:
     st.info("Pick a buzzword, or type your own, to see its weather.")
@@ -48,8 +50,15 @@ if not terms:
 try:
     with st.spinner("Reading the barometer…"):
         mentions = {term: mentions_across(search_phrase_for(term), periods) for term in terms}
-        weathers = {term: weather_of(mentions_across(search_phrase_for(term), recent_months)) for term in terms}
+        weathers = {
+            term: weather_of(
+                mentions_across(search_phrase_for(term), recent_months),
+                mentions_across(search_phrase_for(term), all_quarters),
+            )
+            for term in terms
+        }
 except Exception:
+    logging.getLogger(__name__).exception("Hacker News search failed")
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
@@ -62,7 +71,8 @@ for term, counts in mentions.items():
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
     f"\"service oriented architecture\"), {periods[0].label} to {periods[-1].label}, "
-    "through the Hacker News search by Algolia. The forecast reads the last two years, month by month. The month or "
+    "through the Hacker News search by Algolia. The forecast reads the last two years month by month, against each "
+    "buzzword's busiest quarter since 2007. The month or "
     "quarter in progress is left out. Hacker News talks for one corner "
     "of the industry, so treat it as one weather station. A toy from [ahmedavais.com](https://ahmedavais.com)."
 )
