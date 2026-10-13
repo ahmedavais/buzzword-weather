@@ -1,0 +1,20 @@
+[project]
+name = "buzzword-weather"
+version = "0.1.0"
+description = "Engineering buzzwords and their weather, from Hacker News mentions"
+authors = [
+    { name = "Ahmed Avais", email = "ahmed@ahmedavais.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.65.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+python_files = ["*_test.py"]
