@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from buzzword_weather.months import Month, complete_months_before, months_ending
+from buzzword_weather.months import Month, Quarter, complete_months_before, complete_quarters_before, complete_quarters_since, months_ending
 
 
 def test_counts_back_from_the_month_of_the_given_day():
@@ -24,3 +24,27 @@ def test_reads_as_a_short_label():
 
 def test_complete_months_stop_before_the_month_still_in_progress():
     assert complete_months_before(date(2026, 10, 12), count=2) == [Month(2026, 8), Month(2026, 9)]
+
+
+def test_a_quarter_spans_its_three_months():
+    third = Quarter(2026, 3)
+
+    assert third.starts_at == Month(2026, 7).starts_at
+    assert third.ends_at == Month(2026, 10).starts_at
+    assert third.label == "Q3 2026"
+
+
+def test_the_last_quarter_ends_at_the_new_year():
+    assert Quarter(2025, 4).ends_at == Month(2026, 1).starts_at
+
+
+def test_complete_quarters_stop_before_the_quarter_still_in_progress():
+    assert complete_quarters_before(date(2026, 10, 12), count=3) == [Quarter(2026, 1), Quarter(2026, 2), Quarter(2026, 3)]
+
+
+def test_complete_quarters_since_a_year_start_with_its_first_quarter():
+    quarters = complete_quarters_since(2007, before=date(2026, 10, 12))
+
+    assert quarters[0] == Quarter(2007, 1)
+    assert quarters[-1] == Quarter(2026, 3)
+    assert len(quarters) == 79
