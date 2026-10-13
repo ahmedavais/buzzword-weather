@@ -12,7 +12,7 @@ from buzzword_weather.spans import Span
 
 MOST_TERMS = 7
 CACHED_SERIES = 500
-PARALLEL_SEARCHES = 8
+PARALLEL_SEARCHES = 4
 CHART_HEIGHT = 180
 
 
