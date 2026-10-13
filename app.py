@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
 import pandas as pd
@@ -11,17 +12,16 @@ from buzzword_weather.spans import Span
 STARTING_TERMS = ["vibe coding", "harness engineering", "loop engineering", "ralph loop", "platform engineering"]
 MORE_TERMS = ["devops", "microservices", "scrum", "context engineering", "prompt engineering", "agentic"]
 MOST_TERMS = 7
-CACHED_COUNTS = 50_000
+CACHED_SERIES = 500
+PARALLEL_SEARCHES = 8
 CHART_HEIGHT = 180
 
 
-@st.cache_data(max_entries=CACHED_COUNTS, show_spinner=False)
-def mentions_in(term: str, period: Period) -> int:
-    return HackerNews.create().mentions(term, period)
-
-
-def mentions_across(term: str, periods: list[Period]) -> list[int]:
-    return [mentions_in(term, period) for period in periods]
+@st.cache_data(max_entries=CACHED_SERIES, show_spinner=False)
+def mentions_across(term: str, periods: tuple[Period, ...]) -> list[int]:
+    hacker_news = HackerNews.create()
+    with ThreadPoolExecutor(max_workers=PARALLEL_SEARCHES) as pool:
+        return list(pool.map(lambda period: hacker_news.mentions(term, period), periods))
 
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
@@ -39,8 +39,8 @@ terms = st.multiselect(
 
 span = st.segmented_control("History", options=list(Span), format_func=lambda span: span.label, default=Span.LAST_2_YEARS)
 span = span or Span.LAST_2_YEARS
-periods = span.periods_before(date.today())
-recent_months = Span.LAST_2_YEARS.periods_before(date.today())
+periods = tuple(span.periods_before(date.today()))
+recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
 
 if not terms:
     st.info("Pick a buzzword, or type your own, to see its weather.")
