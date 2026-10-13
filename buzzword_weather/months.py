@@ -34,5 +34,10 @@ def months_ending(day: date, count: int) -> list[Month]:
     return months
 
 
+def complete_months_before(day: date, count: int) -> list[Month]:
+    last_complete = Month(day.year, day.month).previous()
+    return months_ending(date(last_complete.year, last_complete.month, 1), count)
+
+
 def _timestamp(year: int, month: int) -> int:
     return int(datetime(year, month, 1, tzinfo=timezone.utc).timestamp())

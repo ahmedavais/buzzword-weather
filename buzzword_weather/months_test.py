@@ -1,6 +1,6 @@
 from datetime import date, datetime, timezone
 
-from buzzword_weather.months import Month, months_ending
+from buzzword_weather.months import Month, complete_months_before, months_ending
 
 
 def test_counts_back_from_the_month_of_the_given_day():
@@ -20,3 +20,7 @@ def test_a_month_spans_from_its_first_moment_to_the_next_month_in_utc():
 
 def test_reads_as_a_short_label():
     assert Month(2026, 3).label == "Mar 2026"
+
+
+def test_complete_months_stop_before_the_month_still_in_progress():
+    assert complete_months_before(date(2026, 10, 12), count=2) == [Month(2026, 8), Month(2026, 9)]
