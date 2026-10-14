@@ -1,6 +1,13 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
-from buzzword_weather.periods import Month, Quarter, complete_months_before, complete_quarters_before, complete_quarters_since, months_ending
+from buzzword_weather.periods import (
+    Month,
+    Quarter,
+    complete_months_before,
+    complete_quarters_before,
+    complete_quarters_since,
+    months_ending,
+)
 
 
 def test_counts_back_from_the_month_of_the_given_day():
@@ -14,8 +21,8 @@ def test_crosses_into_the_previous_year():
 def test_a_month_spans_from_its_first_moment_to_the_next_month_in_utc():
     december = Month(2025, 12)
 
-    assert december.starts_at == int(datetime(2025, 12, 1, tzinfo=timezone.utc).timestamp())
-    assert december.ends_at == int(datetime(2026, 1, 1, tzinfo=timezone.utc).timestamp())
+    assert december.starts_at == int(datetime(2025, 12, 1, tzinfo=UTC).timestamp())
+    assert december.ends_at == int(datetime(2026, 1, 1, tzinfo=UTC).timestamp())
 
 
 def test_reads_as_a_short_label():

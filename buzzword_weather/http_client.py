@@ -3,8 +3,9 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from buzzword_weather.configurable_responses import ConfigurableResponses
 from buzzword_weather.output_tracker import OutputListener, OutputTracker

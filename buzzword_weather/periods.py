@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 
 @dataclass(frozen=True)
@@ -98,4 +98,4 @@ def complete_months_before(day: date, count: int) -> list[Month]:
 
 
 def _timestamp(year: int, month: int) -> int:
-    return int(datetime(year, month, 1, tzinfo=timezone.utc).timestamp())
+    return int(datetime(year, month, 1, tzinfo=UTC).timestamp())

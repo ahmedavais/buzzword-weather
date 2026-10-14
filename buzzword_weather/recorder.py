@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.hacker_news import HackerNews

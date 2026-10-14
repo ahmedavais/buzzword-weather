@@ -13,6 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "ruff>=0.17.0",
 ]
 
 [tool.pytest.ini_options]
@@ -20,3 +21,11 @@ pythonpath = ["."]
 python_files = ["*_test.py"]
 addopts = "-m 'not integration'"
 markers = ["integration: talks to the real Hacker News search API"]
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["playground"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I", "UP", "SIM"]
+ignore = ["E501"]

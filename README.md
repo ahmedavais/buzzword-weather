@@ -26,13 +26,21 @@ It searches only for counts the almanac lacks, one request at a time with a shor
 (`.github/workflows/refresh-almanac.yml`) does this on the 3rd of every month and commits the almanac when it
 changed, which redeploys the app. Run it by hand from the Actions tab after adding buzzwords to the catalog.
 
+## Lint it
+
+```bash
+uv run ruff check .
+```
+
+Ruff with bug-catching rules (`pyproject.toml`); lint only, no formatter.
+
 ## Test it
 
 ```bash
 uv run pytest
 ```
 
-`uv run pytest -m integration` also checks the real Hacker News search API. CI runs the offline tests on every pull
+`uv run pytest -m integration` also checks the real Hacker News search API. CI runs Ruff and the offline tests on every pull
 request and push to `main` (`.github/workflows/ci.yml`); Community Cloud deploys `main` on its own.
 
 ## How it's put together
