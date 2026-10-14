@@ -1,14 +1,9 @@
-from typing import Generic, TypeVar
-
-Output = TypeVar("Output")
-
-
-class OutputTracker(Generic[Output]):
+class OutputTracker[Output]:
     def __init__(self):
         self.data: list[Output] = []
 
 
-class OutputListener(Generic[Output]):
+class OutputListener[Output]:
     def __init__(self):
         self._trackers: list[OutputTracker[Output]] = []
 

@@ -2,8 +2,8 @@ import json
 from typing import Any
 
 from buzzword_weather.http_client import HttpClient
-from buzzword_weather.periods import Period
 from buzzword_weather.output_tracker import OutputListener, OutputTracker
+from buzzword_weather.periods import Period
 
 SEARCH_URL = "https://hn.algolia.com/api/v1/search"
 

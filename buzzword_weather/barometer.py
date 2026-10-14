@@ -16,5 +16,5 @@ class Barometer:
         recorded = {period: self._almanac.recorded(phrase, period) for period in periods}
         missing = [period for period, count in recorded.items() if count is None]
         with ThreadPoolExecutor(max_workers=PARALLEL_SEARCHES) as pool:
-            searched = dict(zip(missing, pool.map(lambda period: self._hacker_news.mentions(phrase, period), missing)))
+            searched = dict(zip(missing, pool.map(lambda period: self._hacker_news.mentions(phrase, period), missing), strict=True))
         return [recorded[period] if recorded[period] is not None else searched[period] for period in periods]
