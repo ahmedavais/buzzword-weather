@@ -1,6 +1,6 @@
 import pytest
 
-from buzzword_weather.http_client import HttpClient
+from buzzword_weather.http_client import Answer, HttpClient
 
 
 def test_answers_a_nulled_request_with_the_configured_body():
@@ -43,3 +43,36 @@ def test_reads_a_real_hacker_news_search_as_json():
     answer = HttpClient.create().get_json("https://hn.algolia.com/api/v1/search", {"query": '"vibe coding"', "hitsPerPage": 0})
 
     assert isinstance(answer["nbHits"], int)
+
+
+def test_waits_and_tries_again_when_the_server_says_slow_down():
+    http = HttpClient.create_null(bodies=[Answer(429, "Too Many Requests"), '{"nbHits": 4}'])
+    pauses = http.track_pauses()
+
+    assert http.get_json("https://example.test", {}) == {"nbHits": 4}
+    assert pauses.data == [1.0]
+
+
+def test_waits_longer_each_time_it_is_refused():
+    http = HttpClient.create_null(bodies=[Answer(403, "Forbidden"), Answer(403, "Forbidden"), '{"nbHits": 4}'])
+    pauses = http.track_pauses()
+
+    http.get_json("https://example.test", {})
+
+    assert pauses.data == [1.0, 2.0]
+
+
+def test_gives_up_with_a_detailed_error_after_its_last_try():
+    http = HttpClient.create_null(bodies=Answer(429, "Too Many Requests"))
+
+    with pytest.raises(ValueError, match="https://example.test.*refused with 429 after 4 tries"):
+        http.get_json("https://example.test", {})
+
+
+def test_fails_at_once_on_a_server_error():
+    http = HttpClient.create_null(bodies=Answer(500, "Internal Server Error"))
+    pauses = http.track_pauses()
+
+    with pytest.raises(ValueError, match="https://example.test.*answered 500.*Internal Server Error"):
+        http.get_json("https://example.test", {})
+    assert pauses.data == []

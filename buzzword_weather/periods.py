@@ -20,6 +20,10 @@ class Month:
     def label(self) -> str:
         return date(self.year, self.month, 1).strftime("%b %Y")
 
+    @property
+    def key(self) -> str:
+        return f"{self.year}-{self.month:02d}"
+
     def next(self) -> "Month":
         return Month(self.year + 1, 1) if self.month == 12 else Month(self.year, self.month + 1)
 
@@ -47,6 +51,10 @@ class Quarter:
     @property
     def label(self) -> str:
         return f"Q{self.quarter} {self.year}"
+
+    @property
+    def key(self) -> str:
+        return f"{self.year}-Q{self.quarter}"
 
     def next(self) -> "Quarter":
         return Quarter(self.year + 1, 1) if self.quarter == 4 else Quarter(self.year, self.quarter + 1)

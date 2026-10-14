@@ -40,9 +40,11 @@ CATALOG = [
     _buzzword("Loop engineering", "the AI era"),
     _buzzword("Ralph loop", "the AI era"),
     _buzzword("Platform engineering", "the AI era"),
+    _buzzword("Agentic coding", "the AI era"),
+    _buzzword("Evals", "the AI era"),
 ]
 
-DEFAULT_NAMES = ["Vibe coding", "Harness engineering", "Loop engineering", "Ralph loop", "Platform engineering"]
+DEFAULT_NAMES = ["Harness engineering", "Vibe coding", "Loop engineering", "Agentic coding", "Agile", "Blockchain", "SAFe"]
 
 _BY_NAME = {buzzword.name.lower(): buzzword for buzzword in CATALOG}
 

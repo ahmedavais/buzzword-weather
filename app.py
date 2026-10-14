@@ -1,9 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor
+import logging
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
+from buzzword_weather.almanac import Almanac
+from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_NAMES, search_phrase_for
 from buzzword_weather.forecast import weather_of
 from buzzword_weather.hacker_news import HackerNews
@@ -12,15 +15,19 @@ from buzzword_weather.spans import Span
 
 MOST_TERMS = 7
 CACHED_SERIES = 500
-PARALLEL_SEARCHES = 8
+ALMANAC = Path(__file__).parent / "almanac.json"
 CHART_HEIGHT = 180
 
 
+@st.cache_resource
+def barometer() -> Barometer:
+    almanac = Almanac.from_json(ALMANAC.read_text()) if ALMANAC.exists() else Almanac()
+    return Barometer(almanac, HackerNews.create())
+
+
 @st.cache_data(max_entries=CACHED_SERIES, show_spinner=False)
-def mentions_across(term: str, periods: tuple[Period, ...]) -> list[int]:
-    hacker_news = HackerNews.create()
-    with ThreadPoolExecutor(max_workers=PARALLEL_SEARCHES) as pool:
-        return list(pool.map(lambda period: hacker_news.mentions(term, period), periods))
+def mentions_across(phrase: str, periods: tuple[Period, ...]) -> list[int]:
+    return barometer().mentions(phrase, list(periods))
 
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
@@ -40,6 +47,7 @@ span = st.segmented_control("History", options=list(Span), format_func=lambda sp
 span = span or Span.LAST_2_YEARS
 periods = tuple(span.periods_before(date.today()))
 recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
+all_quarters = tuple(Span.SINCE_2007.periods_before(date.today()))
 
 if not terms:
     st.info("Pick a buzzword, or type your own, to see its weather.")
@@ -48,8 +56,15 @@ if not terms:
 try:
     with st.spinner("Reading the barometer…"):
         mentions = {term: mentions_across(search_phrase_for(term), periods) for term in terms}
-        weathers = {term: weather_of(mentions_across(search_phrase_for(term), recent_months)) for term in terms}
+        weathers = {
+            term: weather_of(
+                mentions_across(search_phrase_for(term), recent_months),
+                mentions_across(search_phrase_for(term), all_quarters),
+            )
+            for term in terms
+        }
 except Exception:
+    logging.getLogger(__name__).exception("Hacker News search failed")
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
@@ -62,7 +77,8 @@ for term, counts in mentions.items():
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
     f"\"service oriented architecture\"), {periods[0].label} to {periods[-1].label}, "
-    "through the Hacker News search by Algolia. The forecast reads the last two years, month by month. The month or "
+    "through the Hacker News search by Algolia. The forecast reads the last two years month by month, against each "
+    "buzzword's busiest quarter since 2007. The month or "
     "quarter in progress is left out. Hacker News talks for one corner "
     "of the industry, so treat it as one weather station. A toy from [ahmedavais.com](https://ahmedavais.com)."
 )
