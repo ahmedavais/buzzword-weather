@@ -12,7 +12,8 @@ from buzzword_weather.output_tracker import OutputListener, OutputTracker
 NULLED_BODY = '{"nulled": "Nulled HttpClient default body"}'
 USER_AGENT = "buzzword-weather (https://github.com/ahmedavais/buzzword-weather)"
 TIMEOUT_SECONDS = 15
-SLOW_DOWN_STATUSES = {403, 429}
+TIMED_OUT = 408
+RETRY_STATUSES = {403, TIMED_OUT, 429}
 TRIES = 4
 FIRST_PAUSE_SECONDS = 1.0
 
@@ -21,6 +22,10 @@ FIRST_PAUSE_SECONDS = 1.0
 class Answer:
     status: int
     body: str
+
+    @staticmethod
+    def timed_out() -> "Answer":
+        return Answer(TIMED_OUT, f"No answer within {TIMEOUT_SECONDS} seconds")
 
 
 class Fetcher(Protocol):
@@ -60,10 +65,10 @@ class HttpClient:
         pause_seconds = FIRST_PAUSE_SECONDS
         for attempt in range(1, TRIES + 1):
             answer = self._fetcher.fetch(full_url)
-            if answer.status not in SLOW_DOWN_STATUSES:
+            if answer.status not in RETRY_STATUSES:
                 break
             if attempt == TRIES:
-                raise ValueError(f"GET {url} was refused with {answer.status} after {TRIES} tries: {answer.body[:200]}")
+                raise ValueError(f"GET {url} gave up after {TRIES} tries, last answered {answer.status}: {answer.body[:200]}")
             self._pauses.emit(pause_seconds)
             self._pause(pause_seconds)
             pause_seconds *= 2
@@ -80,6 +85,12 @@ class _UrllibFetcher:
                 return Answer(response.status, response.read().decode("utf-8"))
         except urllib.error.HTTPError as error:
             return Answer(error.code, error.read().decode("utf-8", errors="replace"))
+        except TimeoutError:
+            return Answer.timed_out()
+        except urllib.error.URLError as error:
+            if isinstance(error.reason, TimeoutError):
+                return Answer.timed_out()
+            raise
 
 
 class _StubbedFetcher:
