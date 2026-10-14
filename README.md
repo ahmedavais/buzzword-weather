@@ -5,7 +5,8 @@ Engineering buzzwords and their weather: how often Hacker News mentions each ter
 passing, clearing skies and more).
 
 A toy from [ahmedavais.com](https://ahmedavais.com), built with Streamlit on the
-[Hacker News search API by Algolia](https://hn.algolia.com/api).
+[Hacker News search API by Algolia](https://hn.algolia.com/api). It lives at
+[buzzword-weather.streamlit.app](https://buzzword-weather.streamlit.app/).
 
 ## Run it
 
@@ -43,6 +44,21 @@ uv run pytest
 `uv run pytest -m integration` also checks the real Hacker News search API. CI runs Ruff and the offline tests on every pull
 request and push to `main` (`.github/workflows/ci.yml`); Community Cloud deploys `main` on its own.
 
+## Keep it awake
+
+Community Cloud puts an app to sleep after about 12 hours without visitors, and the next visitor waits through a
+cold boot. A GitHub Action (`.github/workflows/keep-awake.yml`) visits the app every 6 hours in a headless browser
+and clicks the wake button if the app fell asleep anyway. A plain HTTP request doesn't count as a visit. To visit
+it by hand:
+
+```bash
+uv run --group keep-awake playwright install chromium
+```
+
+```bash
+uv run --group keep-awake python keep_awake.py
+```
+
 ## Sensors
 
 `sensors/` holds tests that watch real data, not logic. They run with the rest of the tests in CI, and the refresh
@@ -68,3 +84,4 @@ Action runs them before it commits a new almanac:
   `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather
   changes
 - `app.py`: the Streamlit page; it only renders
+- `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep
