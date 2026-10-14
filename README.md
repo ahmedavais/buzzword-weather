@@ -64,4 +64,7 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/forecast.py`: the weather of a term from its last 24 months against its busiest quarter since
   2007: clear skies, first clouds, a front moving in, a storm overhead, a storm passing, clearing skies, or a steady
   breeze
+- `buzzword_weather/defaults.py`: the starting buzzwords, picked from the curated `DEFAULT_POOL` in
+  `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather
+  changes
 - `app.py`: the Streamlit page; it only renders

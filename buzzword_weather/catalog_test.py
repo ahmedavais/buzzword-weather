@@ -1,4 +1,4 @@
-from buzzword_weather.catalog import CATALOG, DEFAULT_NAMES, ERAS, search_phrase_for
+from buzzword_weather.catalog import CATALOG, DEFAULT_POOL, ERAS, search_phrase_for
 
 
 def test_searches_safe_as_scaled_agile_so_the_everyday_word_stays_out():
@@ -27,5 +27,5 @@ def test_places_every_buzzword_in_a_known_era():
     assert {buzzword.era for buzzword in CATALOG} == set(ERAS)
 
 
-def test_starts_with_buzzwords_from_the_catalog():
-    assert set(DEFAULT_NAMES) <= {buzzword.name for buzzword in CATALOG}
+def test_draws_defaults_from_a_pool_of_catalog_buzzwords():
+    assert set(DEFAULT_POOL) <= {buzzword.name for buzzword in CATALOG}
