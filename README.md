@@ -43,6 +43,14 @@ uv run pytest
 `uv run pytest -m integration` also checks the real Hacker News search API. CI runs Ruff and the offline tests on every pull
 request and push to `main` (`.github/workflows/ci.yml`); Community Cloud deploys `main` on its own.
 
+## Sensors
+
+`sensors/` holds tests that watch real data, not logic. They run with the rest of the tests in CI, and the refresh
+Action runs them before it commits a new almanac:
+
+- `almanac_coverage_test.py`: every catalog buzzword has every period up to the almanac's latest month, and that
+  month is at most two months old
+
 ## How it's put together
 
 - `buzzword_weather/periods.py`: complete months and quarters, leaving out the one in progress
