@@ -1,6 +1,9 @@
 import json
+import re
 
-from buzzword_weather.periods import Period
+from buzzword_weather.periods import Month, Period
+
+MONTH_KEY = re.compile(r"^(\d{4})-(\d{2})$")
 
 
 class Almanac:
@@ -18,6 +21,19 @@ class Almanac:
         records = {known: dict(counts) for known, counts in self._records.items()}
         records.setdefault(phrase, {})[period.key] = count
         return Almanac(records)
+
+    def latest_month(self) -> Month | None:
+        months = [
+            Month(int(match[1]), int(match[2]))
+            for counts in self._records.values()
+            for key in counts
+            if (match := MONTH_KEY.match(key))
+        ]
+        return max(months, key=lambda month: (month.year, month.month), default=None)
+
+    def gaps(self, phrases: list[str], periods: list[Period]) -> dict[str, list[Period]]:
+        missing = {phrase: [period for period in periods if self.recorded(phrase, period) is None] for phrase in phrases}
+        return {phrase: lacking for phrase, lacking in missing.items() if lacking}
 
     def to_json(self) -> str:
         return json.dumps(self._records, indent=1, sort_keys=True)
