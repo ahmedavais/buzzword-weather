@@ -22,7 +22,9 @@ for months and quarters newer than the almanac. Past counts don't change. To bri
 uv run python record_almanac.py
 ```
 
-It searches only for counts the almanac lacks, one request at a time with a short pause.
+It searches only for counts the almanac lacks, one request at a time with a short pause. A GitHub Action
+(`.github/workflows/refresh-almanac.yml`) does this on the 3rd of every month and commits the almanac when it
+changed, which redeploys the app. Run it by hand from the Actions tab after adding buzzwords to the catalog.
 
 ## Test it
 
