@@ -30,7 +30,8 @@ It searches only for counts the almanac lacks, one request at a time with a shor
 uv run pytest
 ```
 
-`uv run pytest -m integration` also checks the real Hacker News search API.
+`uv run pytest -m integration` also checks the real Hacker News search API. CI runs the offline tests on every pull
+request and push to `main` (`.github/workflows/ci.yml`); Community Cloud deploys `main` on its own.
 
 ## How it's put together
 
