@@ -1,0 +1,19 @@
+name: Keep the app awake
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+      - run: uv sync --locked --only-group keep-awake
+      - run: uv run --no-sync playwright install --with-deps chromium
+      - run: uv run --no-sync python keep_awake.py
