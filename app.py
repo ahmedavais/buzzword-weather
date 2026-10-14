@@ -1,10 +1,12 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor
 from datetime import date
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
+from buzzword_weather.almanac import Almanac
+from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_NAMES, search_phrase_for
 from buzzword_weather.forecast import weather_of
 from buzzword_weather.hacker_news import HackerNews
@@ -13,15 +15,19 @@ from buzzword_weather.spans import Span
 
 MOST_TERMS = 7
 CACHED_SERIES = 500
-PARALLEL_SEARCHES = 4
+ALMANAC = Path(__file__).parent / "almanac.json"
 CHART_HEIGHT = 180
 
 
+@st.cache_resource
+def barometer() -> Barometer:
+    almanac = Almanac.from_json(ALMANAC.read_text()) if ALMANAC.exists() else Almanac()
+    return Barometer(almanac, HackerNews.create())
+
+
 @st.cache_data(max_entries=CACHED_SERIES, show_spinner=False)
-def mentions_across(term: str, periods: tuple[Period, ...]) -> list[int]:
-    hacker_news = HackerNews.create()
-    with ThreadPoolExecutor(max_workers=PARALLEL_SEARCHES) as pool:
-        return list(pool.map(lambda period: hacker_news.mentions(term, period), periods))
+def mentions_across(phrase: str, periods: tuple[Period, ...]) -> list[int]:
+    return barometer().mentions(phrase, list(periods))
 
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
