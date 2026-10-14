@@ -16,6 +16,8 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
       - run: uv sync --locked
       - run: uv run python record_almanac.py
+      - name: Check the almanac before committing it
+        run: uv run pytest
       - name: Commit the almanac if it changed
         run: |
           if git diff --quiet -- almanac.json; then

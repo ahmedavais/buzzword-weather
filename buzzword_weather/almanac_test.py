@@ -28,3 +28,22 @@ def test_survives_a_round_trip_through_json():
 
     assert restored.recorded("agile", Quarter(2026, 3)) == 299
     assert restored.recorded("agile", Month(2026, 9)) == 96
+
+
+def test_knows_the_latest_month_it_recorded():
+    almanac = Almanac().with_record("agile", Month(2026, 8), 90).with_record("scrum", Month(2026, 9), 40).with_record("agile", Quarter(2026, 3), 299)
+
+    assert almanac.latest_month() == Month(2026, 9)
+
+
+def test_has_no_latest_month_when_empty():
+    assert Almanac().latest_month() is None
+
+
+def test_lists_what_it_lacks_for_each_phrase():
+    almanac = Almanac().with_record("agile", Month(2026, 8), 90)
+
+    assert almanac.gaps(["agile", "scrum"], [Month(2026, 8), Month(2026, 9)]) == {
+        "agile": [Month(2026, 9)],
+        "scrum": [Month(2026, 8), Month(2026, 9)],
+    }
