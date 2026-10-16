@@ -39,12 +39,12 @@ class Weather(Enum):
         return ICONS[self.value]
 
 
-def weather_of(last_24_months: list[int], quarters_since_2007: list[int]) -> Weather:
+def weather_of(last_24_months: list[int], all_quarters: list[int]) -> Weather:
     latest = mean(last_24_months[-2:])
     recent_peak = max(last_24_months)
-    all_time_peak = max(quarters_since_2007)
+    all_time_peak = max(all_quarters)
     last_quarter = sum(last_24_months[-3:])
-    quarters_since_peak = len(quarters_since_2007) - 1 - quarters_since_2007.index(all_time_peak)
+    quarters_since_peak = len(all_quarters) - 1 - all_quarters.index(all_time_peak)
     is_new = sum(last_24_months[:-6]) < NEW_TERM_EARLIER_MENTIONS
     if recent_peak < QUIET_MONTH and all_time_peak < QUIET_QUARTER:
         return Weather.CLEAR_SKIES

@@ -1,8 +1,8 @@
 # Buzzword weather
 
 Engineering buzzwords and their weather: how often Hacker News mentions each term over the last 2 years, the last
-10 years or since 2007, and a forecast for each one from its last 24 months (calm, a front moving in, a storm
-passing, clearing skies and more).
+10 years or all time since Hacker News began in 2007, and a forecast for each one from its last 24 months (calm, a
+front moving in, a storm passing, clearing skies and more).
 
 A toy from [ahmedavais.com](https://ahmedavais.com), built with Streamlit on the
 [Hacker News search API by Algolia](https://hn.algolia.com/api). It lives at
@@ -77,8 +77,8 @@ Action runs them before it commits a new almanac:
   and `create_null()` so tests run without the network
 - `buzzword_weather/almanac.py`, `recorder.py`: recorded counts, and filling in the missing ones
 - `buzzword_weather/barometer.py`: mentions from the almanac, searching Hacker News only for what it lacks
-- `buzzword_weather/forecast.py`: the weather of a term from its last 24 months against its busiest quarter since
-  2007: clear skies, first clouds, a front moving in, a storm overhead, a storm passing, clearing skies, or a steady
+- `buzzword_weather/forecast.py`: the weather of a term from its last 24 months against its busiest quarter ever:
+  clear skies, first clouds, a front moving in, a storm overhead, a storm passing, clearing skies, or a steady
   breeze
 - `buzzword_weather/defaults.py`: the starting buzzwords, picked from the curated `DEFAULT_POOL` in
   `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather

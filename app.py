@@ -45,7 +45,7 @@ def starting_buzzwords() -> list[str]:
 
 
 recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
-all_quarters = tuple(Span.SINCE_2007.periods_before(date.today()))
+all_quarters = tuple(Span.ALL_TIME.periods_before(date.today()))
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
 st.title("🌦️ Buzzword weather")
@@ -87,7 +87,7 @@ st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
     f"\"service oriented architecture\"), {periods[0].label} to {periods[-1].label}, "
     "through the Hacker News search by Algolia. The forecast reads the last two years month by month, against each "
-    "buzzword's busiest quarter since 2007. The month or "
+    "buzzword's busiest quarter ever. The month or "
     "quarter in progress is left out. Hacker News talks for one corner "
     "of the industry, so treat it as one weather station. A toy from [ahmedavais.com](https://ahmedavais.com)."
 )

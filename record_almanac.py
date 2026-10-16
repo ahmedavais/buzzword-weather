@@ -15,7 +15,7 @@ PAUSE_SECONDS = 0.25
 def main() -> None:
     almanac = Almanac.from_json(ALMANAC.read_text()) if ALMANAC.exists() else Almanac()
     today = date.today()
-    periods = Span.LAST_2_YEARS.periods_before(today) + Span.SINCE_2007.periods_before(today)
+    periods = Span.LAST_2_YEARS.periods_before(today) + Span.ALL_TIME.periods_before(today)
     hacker_news = HackerNews.create()
     for buzzword in CATALOG:
         almanac = record_missing(almanac, hacker_news, [buzzword.phrase], periods, pause=lambda: time.sleep(PAUSE_SECONDS))
