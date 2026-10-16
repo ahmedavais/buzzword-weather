@@ -32,3 +32,6 @@ extend-exclude = ["playground"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "B", "I", "UP", "SIM"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"app.py" = ["E402"]

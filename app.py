@@ -1,9 +1,36 @@
 import logging
+import sys
 from datetime import date
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+
+from buzzword_weather.code_version import code_version
+
+CODE = Path(__file__).parent / "buzzword_weather"
+
+
+@st.cache_resource
+def code_in_memory() -> dict[str, str]:
+    return {}
+
+
+def forget_loaded(package: str) -> None:
+    for name in [name for name in sys.modules if name == package or name.startswith(f"{package}.")]:
+        del sys.modules[name]
+
+
+def reload_code_after_a_deploy() -> None:
+    deployed = code_version(CODE)
+    if code_in_memory().get("version") != deployed:
+        forget_loaded(CODE.name)
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        code_in_memory()["version"] = deployed
+
+
+reload_code_after_a_deploy()
 
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.barometer import Barometer
