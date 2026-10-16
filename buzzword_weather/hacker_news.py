@@ -3,9 +3,10 @@ from typing import Any
 
 from buzzword_weather.http_client import HttpClient
 from buzzword_weather.output_tracker import OutputListener, OutputTracker
-from buzzword_weather.periods import Period
+from buzzword_weather.periods import Month, Period
 
 SEARCH_URL = "https://hn.algolia.com/api/v1/search"
+BY_DATE_URL = "https://hn.algolia.com/api/v1/search_by_date"
 
 
 class HackerNews:
@@ -14,16 +15,20 @@ class HackerNews:
         return HackerNews(HttpClient.create())
 
     @staticmethod
-    def create_null(mentions: int | list[int] = 0) -> "HackerNews":
-        bodies = [_answer(count) for count in mentions] if isinstance(mentions, list) else _answer(mentions)
+    def create_null(mentions: int | list[int] = 0, items_posted: int = 0) -> "HackerNews":
+        bodies = [_answer(count, items_posted) for count in mentions] if isinstance(mentions, list) else _answer(mentions, items_posted)
         return HackerNews(HttpClient.create_null(bodies=bodies))
 
     def __init__(self, http: HttpClient):
         self._http = http
         self._searches: OutputListener[dict[str, Any]] = OutputListener()
+        self._item_lookups: OutputListener[Month] = OutputListener()
 
     def track_searches(self) -> OutputTracker[dict[str, Any]]:
         return self._searches.track()
+
+    def track_item_lookups(self) -> OutputTracker[Month]:
+        return self._item_lookups.track()
 
     def mentions_by_period(self, term: str, periods: list[Period]) -> list[int]:
         return [self.mentions(term, period) for period in periods]
@@ -36,6 +41,14 @@ class HackerNews:
             raise ValueError(f"Hacker News gave no mention count for {term!r} in {period.label}: {json.dumps(answer)[:200]}")
         return count
 
+    def items_posted_before(self, month: Month) -> int:
+        self._item_lookups.emit(month)
+        answer = self._http.get_json(BY_DATE_URL, {"numericFilters": f"created_at_i<{month.starts_at}", "hitsPerPage": 1})
+        hits = answer.get("hits") if isinstance(answer, dict) else None
+        if not hits:
+            raise ValueError(f"Hacker News gave no newest item from before {month.label}: {json.dumps(answer)[:200]}")
+        return int(hits[0]["objectID"])
+
 
 def _search_for(term: str, period: Period) -> dict[str, Any]:
     return {
@@ -46,5 +59,5 @@ def _search_for(term: str, period: Period) -> dict[str, Any]:
     }
 
 
-def _answer(count: int) -> str:
-    return json.dumps({"nbHits": count})
+def _answer(count: int, items_posted: int) -> str:
+    return json.dumps({"nbHits": count, "hits": [{"objectID": str(items_posted)}]})

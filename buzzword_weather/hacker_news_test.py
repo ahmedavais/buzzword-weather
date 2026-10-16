@@ -54,3 +54,37 @@ def test_fails_with_a_detailed_error_when_the_answer_has_no_count():
 
     with pytest.raises(ValueError, match="no mention count.*vibe coding.*Mar 2026.*Too many requests"):
         HackerNews(http).mentions("vibe coding", MARCH)
+
+
+def test_counts_the_items_posted_before_a_month_began():
+    assert HackerNews.create_null(items_posted=46_000_000).items_posted_before(MARCH) == 46_000_000
+
+
+def test_asks_for_the_newest_item_of_any_kind_from_before_the_month():
+    http = HttpClient.create_null(bodies='{"hits": [{"objectID": "46000000"}]}')
+    requests = http.track_requests()
+
+    HackerNews(http).items_posted_before(MARCH)
+
+    assert requests.data == [
+        {
+            "url": "https://hn.algolia.com/api/v1/search_by_date",
+            "params": {"numericFilters": f"created_at_i<{MARCH.starts_at}", "hitsPerPage": 1},
+        }
+    ]
+
+
+def test_fails_with_a_detailed_error_when_the_answer_has_no_item():
+    http = HttpClient.create_null(bodies='{"message": "Too many requests"}')
+
+    with pytest.raises(ValueError, match="no newest item.*Mar 2026.*Too many requests"):
+        HackerNews(http).items_posted_before(MARCH)
+
+
+def test_tracks_each_lookup_of_items_posted_by_month():
+    hacker_news = HackerNews.create_null()
+    lookups = hacker_news.track_item_lookups()
+
+    hacker_news.items_posted_before(MARCH)
+
+    assert lookups.data == [MARCH]
