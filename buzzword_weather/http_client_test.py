@@ -18,6 +18,14 @@ def test_answers_with_configured_bodies_in_order_then_fails_fast():
         http.get_json("https://example.test", {})
 
 
+def test_answers_each_url_from_its_own_configured_bodies():
+    http = HttpClient.create_null(bodies={"https://example.test/search": ['{"a": 1}', '{"a": 2}'], "https://example.test/latest": '{"b": 9}'})
+
+    assert http.get_json("https://example.test/search", {"query": "x"})["a"] == 1
+    assert http.get_json("https://example.test/latest", {})["b"] == 9
+    assert http.get_json("https://example.test/search", {"query": "y"})["a"] == 2
+
+
 def test_answers_a_bare_nulled_request_with_a_self_naming_body():
     assert HttpClient.create_null().get_json("https://example.test", {}) == {"nulled": "Nulled HttpClient default body"}
 

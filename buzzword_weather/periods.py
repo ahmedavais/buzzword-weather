@@ -8,6 +8,10 @@ class Month:
     month: int
 
     @property
+    def first_month(self) -> "Month":
+        return self
+
+    @property
     def starts_at(self) -> int:
         return _timestamp(self.year, self.month)
 
@@ -99,3 +103,8 @@ def complete_months_before(day: date, count: int) -> list[Month]:
 
 def _timestamp(year: int, month: int) -> int:
     return int(datetime(year, month, 1, tzinfo=UTC).timestamp())
+
+
+def edge_months(periods: list[Period]) -> list[Month]:
+    edges = {edge for period in periods for edge in (period.first_month, period.next().first_month)}
+    return sorted(edges, key=lambda month: (month.year, month.month))

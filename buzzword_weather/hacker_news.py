@@ -16,8 +16,8 @@ class HackerNews:
 
     @staticmethod
     def create_null(mentions: int | list[int] = 0, items_posted: int = 0) -> "HackerNews":
-        bodies = [_answer(count, items_posted) for count in mentions] if isinstance(mentions, list) else _answer(mentions, items_posted)
-        return HackerNews(HttpClient.create_null(bodies=bodies))
+        mention_counts = [_mention_count(count) for count in mentions] if isinstance(mentions, list) else _mention_count(mentions)
+        return HackerNews(HttpClient.create_null(bodies={SEARCH_URL: mention_counts, BY_DATE_URL: _newest_item(items_posted)}))
 
     def __init__(self, http: HttpClient):
         self._http = http
@@ -59,5 +59,9 @@ def _search_for(term: str, period: Period) -> dict[str, Any]:
     }
 
 
-def _answer(count: int, items_posted: int) -> str:
-    return json.dumps({"nbHits": count, "hits": [{"objectID": str(items_posted)}]})
+def _mention_count(count: int) -> str:
+    return json.dumps({"nbHits": count})
+
+
+def _newest_item(items_posted: int) -> str:
+    return json.dumps({"hits": [{"objectID": str(items_posted)}]})

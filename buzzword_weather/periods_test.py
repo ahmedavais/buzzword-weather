@@ -6,6 +6,7 @@ from buzzword_weather.periods import (
     complete_months_before,
     complete_quarters_before,
     complete_quarters_since,
+    edge_months,
     months_ending,
 )
 
@@ -59,3 +60,12 @@ def test_complete_quarters_since_a_year_start_with_its_first_quarter():
 
 def test_keys_a_month_and_a_quarter_so_they_can_be_recorded():
     assert (Month(2026, 9).key, Quarter(2026, 3).key) == ("2026-09", "2026-Q3")
+
+
+def test_knows_the_months_that_begin_and_end_each_period():
+    assert edge_months([Month(2026, 8), Month(2026, 9), Quarter(2026, 3)]) == [
+        Month(2026, 7),
+        Month(2026, 8),
+        Month(2026, 9),
+        Month(2026, 10),
+    ]
