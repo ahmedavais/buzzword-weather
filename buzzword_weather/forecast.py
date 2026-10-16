@@ -1,9 +1,8 @@
 from enum import Enum
 from statistics import mean
 
-QUIET_MONTH = 10
-QUIET_QUARTER = 30
-NEW_TERM_EARLIER_MENTIONS = 5
+QUIET_RATE = 0.3
+NEW_TERM_EARLIER_RATE = 0.15
 PASSING_AT_SHARE_OF_RECENT_PEAK = 0.5
 CLEARING_AT_SHARE_OF_ALL_TIME_PEAK = 0.4
 CLEARING_AFTER_QUARTERS = 8
@@ -39,14 +38,14 @@ class Weather(Enum):
         return ICONS[self.value]
 
 
-def weather_of(last_24_months: list[int], all_quarters: list[int]) -> Weather:
+def weather_of(last_24_months: list[float], all_quarters: list[float]) -> Weather:
     latest = mean(last_24_months[-2:])
     recent_peak = max(last_24_months)
     all_time_peak = max(all_quarters)
-    last_quarter = sum(last_24_months[-3:])
+    last_quarter = mean(last_24_months[-3:])
     quarters_since_peak = len(all_quarters) - 1 - all_quarters.index(all_time_peak)
-    is_new = sum(last_24_months[:-6]) < NEW_TERM_EARLIER_MENTIONS
-    if recent_peak < QUIET_MONTH and all_time_peak < QUIET_QUARTER:
+    is_new = sum(last_24_months[:-6]) < NEW_TERM_EARLIER_RATE
+    if recent_peak < QUIET_RATE and all_time_peak < QUIET_RATE:
         return Weather.CLEAR_SKIES
     if is_new and latest >= PASSING_AT_SHARE_OF_RECENT_PEAK * recent_peak:
         return Weather.FIRST_CLOUDS
