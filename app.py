@@ -27,13 +27,13 @@ def barometer() -> Barometer:
 
 
 @st.cache_data(max_entries=CACHED_SERIES, show_spinner=False)
-def mentions_across(phrase: str, periods: tuple[Period, ...]) -> list[int]:
-    return barometer().mentions(phrase, list(periods))
+def mention_rates_across(phrase: str, periods: tuple[Period, ...]) -> list[float]:
+    return barometer().mention_rates(phrase, list(periods))
 
 
 def weather_for(name: str) -> Weather:
     phrase = search_phrase_for(name)
-    return weather_of(mentions_across(phrase, recent_months), mentions_across(phrase, all_quarters))
+    return weather_of(mention_rates_across(phrase, recent_months), mention_rates_across(phrase, all_quarters))
 
 
 def starting_buzzwords() -> list[str]:
@@ -70,7 +70,7 @@ if not terms:
 
 try:
     with st.spinner("Reading the barometer…"):
-        mentions = {term: mentions_across(search_phrase_for(term), periods) for term in terms}
+        mention_rates = {term: mention_rates_across(search_phrase_for(term), periods) for term in terms}
         weathers = {term: weather_for(term) for term in terms}
 except Exception:
     logging.getLogger(__name__).exception("Hacker News search failed")
@@ -78,16 +78,16 @@ except Exception:
     st.stop()
 
 period_starts = pd.to_datetime([period.starts_at for period in periods], unit="s")
-for term, counts in mentions.items():
+for term, rates in mention_rates.items():
     weather = weathers[term]
     st.markdown(f"#### {weather.icon} {term}: {weather.forecast}")
-    st.line_chart(pd.Series(counts, index=period_starts, name=term), y_label=f"Mentions a {span.step}", height=CHART_HEIGHT)
+    st.line_chart(pd.Series(rates, index=period_starts, name=term), y_label="Mentions per 10,000 posts", height=CHART_HEIGHT)
 
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
-    f"\"service oriented architecture\"), {periods[0].label} to {periods[-1].label}, "
-    "through the Hacker News search by Algolia. The forecast reads the last two years month by month, against each "
-    "buzzword's busiest quarter ever. The month or "
-    "quarter in progress is left out. Hacker News talks for one corner "
-    "of the industry, so treat it as one weather station. A toy from [ahmedavais.com](https://ahmedavais.com)."
+    f"\"service oriented architecture\"), {periods[0].label} to {periods[-1].label}, through the Hacker News search "
+    f"by Algolia. Each {span.step} shows mentions per 10,000 posts, so a busier Hacker News doesn't make every "
+    "buzzword look bigger. The forecast reads the last two years month by month, against each buzzword's busiest "
+    "quarter ever. The month or quarter in progress is left out. Hacker News talks for one corner of the industry, "
+    "so treat it as one weather station. A toy from [ahmedavais.com](https://ahmedavais.com)."
 )
