@@ -47,3 +47,29 @@ def test_lists_what_it_lacks_for_each_phrase():
         "agile": [Month(2026, 9)],
         "scrum": [Month(2026, 8), Month(2026, 9)],
     }
+
+
+def test_remembers_how_many_items_were_posted_before_a_month():
+    almanac = Almanac().with_items_posted_before(Month(2026, 9), 45_600_000)
+
+    assert almanac.items_posted_before(Month(2026, 9)) == 45_600_000
+
+
+def test_keeps_items_posted_when_recording_mentions():
+    almanac = Almanac().with_items_posted_before(Month(2026, 9), 45_600_000).with_record("agile", Month(2026, 9), 96)
+
+    assert almanac.items_posted_before(Month(2026, 9)) == 45_600_000
+
+
+def test_keeps_items_posted_through_a_round_trip_through_json():
+    almanac = Almanac().with_items_posted_before(Month(2026, 9), 45_600_000)
+
+    restored = Almanac.from_json(almanac.to_json())
+
+    assert restored.items_posted_before(Month(2026, 9)) == 45_600_000
+
+
+def test_lists_the_months_it_lacks_items_posted_for():
+    almanac = Almanac().with_items_posted_before(Month(2026, 8), 45_300_000)
+
+    assert almanac.months_lacking_items_posted([Month(2026, 8), Month(2026, 9)]) == [Month(2026, 9)]

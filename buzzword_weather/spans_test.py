@@ -19,13 +19,13 @@ def test_shows_the_last_ten_years_quarter_by_quarter():
 
 
 def test_shows_everything_since_hacker_news_began_quarter_by_quarter():
-    periods = Span.SINCE_2007.periods_before(TODAY)
+    periods = Span.ALL_TIME.periods_before(TODAY)
 
     assert (periods[0], periods[-1]) == (Quarter(2007, 1), Quarter(2026, 3))
 
 
 def test_reads_as_a_choice_a_visitor_can_make():
-    assert [span.label for span in Span] == ["Last 2 years", "Last 10 years", "Since 2007"]
+    assert [span.label for span in Span] == ["Last 2 years", "Last 10 years", "All time"]
 
 
 def test_names_the_step_between_points():

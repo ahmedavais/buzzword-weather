@@ -17,6 +17,7 @@ TIMED_OUT = 408
 RETRY_STATUSES = {403, TIMED_OUT, 429}
 TRIES = 4
 FIRST_PAUSE_SECONDS = 1.0
+ANY_URL = "any url"
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,9 @@ class Answer:
         return Answer(TIMED_OUT, f"No answer within {TIMEOUT_SECONDS} seconds")
 
 
+Bodies = str | Answer | list[str | Answer]
+
+
 class Fetcher(Protocol):
     def fetch(self, url: str) -> Answer: ...
 
@@ -39,7 +43,7 @@ class HttpClient:
         return HttpClient(_UrllibFetcher(), time.sleep)
 
     @staticmethod
-    def create_null(bodies: str | Answer | list[str | Answer] = NULLED_BODY) -> "HttpClient":
+    def create_null(bodies: Bodies | dict[str, Bodies] = NULLED_BODY) -> "HttpClient":
         return HttpClient(_StubbedFetcher(bodies), lambda seconds: None)
 
     def __init__(self, fetcher: Fetcher, pause: Callable[[float], None]):
@@ -95,9 +99,11 @@ class _UrllibFetcher:
 
 
 class _StubbedFetcher:
-    def __init__(self, bodies: str | Answer | list[str | Answer]):
-        self._answers = ConfigurableResponses(bodies, "the nulled HttpClient")
+    def __init__(self, bodies: Bodies | dict[str, Bodies]):
+        by_url = bodies if isinstance(bodies, dict) else {ANY_URL: bodies}
+        self._answers = {url: ConfigurableResponses(configured, f"the nulled HttpClient for {url}") for url, configured in by_url.items()}
 
     def fetch(self, url: str) -> Answer:
-        answer = self._answers.next()
+        base_url = url.split("?")[0]
+        answer = self._answers[base_url if base_url in self._answers else ANY_URL].next()
         return answer if isinstance(answer, Answer) else Answer(200, answer)

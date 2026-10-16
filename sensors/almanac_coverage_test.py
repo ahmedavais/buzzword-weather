@@ -3,7 +3,7 @@ from pathlib import Path
 
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.catalog import CATALOG
-from buzzword_weather.periods import Month, Period, complete_quarters_since, months_ending
+from buzzword_weather.periods import Month, Period, complete_quarters_since, edge_months, months_ending
 from buzzword_weather.spans import HACKER_NEWS_FIRST_YEAR
 
 ALMANAC = Almanac.from_json((Path(__file__).parent.parent / "almanac.json").read_text())
@@ -29,6 +29,17 @@ def test_records_every_catalog_buzzword_for_every_period_up_to_its_latest_month(
 
     assert gaps == {}, f"The almanac lacks counts through {latest.label}: " + ", ".join(
         f"{phrase} ({len(lacking)} periods)" for phrase, lacking in gaps.items()
+    )
+
+
+def test_records_the_items_posted_at_every_edge_of_those_periods():
+    latest = ALMANAC.latest_month()
+    assert latest is not None, "The almanac is empty"
+
+    lacking = ALMANAC.months_lacking_items_posted(edge_months(periods_through(latest)))
+
+    assert lacking == [], f"The almanac lacks how many items were posted before {len(lacking)} months: " + ", ".join(
+        month.label for month in lacking[:5]
     )
 
 

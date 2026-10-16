@@ -9,7 +9,7 @@ HACKER_NEWS_FIRST_YEAR = 2007
 class Span(Enum):
     LAST_2_YEARS = "Last 2 years"
     LAST_10_YEARS = "Last 10 years"
-    SINCE_2007 = "Since 2007"
+    ALL_TIME = "All time"
 
     @property
     def label(self) -> str:
@@ -25,5 +25,5 @@ class Span(Enum):
                 return complete_months_before(day, 24)
             case Span.LAST_10_YEARS:
                 return complete_quarters_before(day, 40)
-            case Span.SINCE_2007:
+            case Span.ALL_TIME:
                 return complete_quarters_since(HACKER_NEWS_FIRST_YEAR, before=day)
