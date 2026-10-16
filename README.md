@@ -50,6 +50,15 @@ uv run pytest
 `uv run pytest -m integration` also checks the real Hacker News search API. CI runs Ruff and the offline tests on every pull
 request and push to `main` (`.github/workflows/ci.yml`); Community Cloud deploys `main` on its own.
 
+## Deploy it
+
+Community Cloud deploys `main` on its own, without restarting the app. Streamlit reloads changed modules only for a
+visitor who had the page open when the files changed, so everyone else would keep running the old `buzzword_weather`
+modules and cached objects next to the new `app.py`, and the app would crash. To prevent that, `app.py` starts every
+run by comparing the version of the code on disk with the one in memory. When a deploy changed it, the app drops the
+`buzzword_weather` modules and clears Streamlit's caches, so the new code loads clean. No reboot is needed after a
+deploy.
+
 ## Keep it awake
 
 Community Cloud puts an app to sleep after about 12 hours without visitors, and the next visitor waits through a
@@ -90,5 +99,6 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/defaults.py`: the starting buzzwords, picked from the curated `DEFAULT_POOL` in
   `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather
   changes
-- `app.py`: the Streamlit page; it only renders
+- `buzzword_weather/code_version.py`: the version of the package's code, from its source files
+- `app.py`: the Streamlit page; it reloads the code after a deploy, then only renders
 - `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep
