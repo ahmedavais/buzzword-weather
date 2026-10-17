@@ -6,6 +6,8 @@ import pandas as pd
 from buzzword_weather.periods import Period
 
 RATE = "Mentions per 10,000 posts"
+LEGEND_COLUMNS = 2
+COLORBLIND_SAFE_COLORS = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9"]
 
 
 def rates_chart(rates: dict[str, list[float]], periods: list[Period]) -> alt.Chart:
@@ -15,7 +17,13 @@ def rates_chart(rates: dict[str, list[float]], periods: list[Period]) -> alt.Cha
         .encode(
             x=alt.X("starts:T", title=None),
             y=alt.Y("rate:Q", title=RATE),
-            color=alt.Color("buzzword:N", sort=list(rates), title=None),
+            color=alt.Color(
+                "buzzword:N",
+                sort=list(rates),
+                scale=alt.Scale(domain=list(rates), range=COLORBLIND_SAFE_COLORS[: len(rates)]),
+                legend=alt.Legend(orient="bottom", columns=LEGEND_COLUMNS),
+                title=None,
+            ),
             tooltip=["buzzword:N", "period:N", alt.Tooltip("rate:Q", format=".2f", title=RATE)],
         )
     )

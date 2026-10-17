@@ -56,3 +56,21 @@ def test_rounds_the_rate_on_hover_to_two_decimals_so_small_buzzwords_still_show(
 
     rate_tip = spec["encoding"]["tooltip"][2]
     assert (rate_tip["format"], rate_tip["title"]) == (".2f", "Mentions per 10,000 posts")
+
+
+def test_gives_each_buzzword_its_own_color_from_a_colorblind_safe_palette_in_order():
+    spec = rates_chart({"Vibe coding": [20.0, 18.0], "Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert spec["encoding"]["color"]["scale"]["range"] == ["#3987e5", "#d95926"]
+
+
+def test_puts_the_legend_under_the_chart_so_phones_keep_the_full_width():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert spec["encoding"]["color"]["legend"]["orient"] == "bottom"
+
+
+def test_wraps_the_legend_into_two_columns_so_every_name_fits_on_a_phone():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert spec["encoding"]["color"]["legend"]["columns"] == 2
