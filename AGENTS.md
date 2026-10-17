@@ -23,4 +23,4 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
 - No comments in code. Names and small functions carry the meaning.
 - Counts are mentions per 10,000 posts, never raw counts: Hacker News posts far more now than in 2008.
 - Ruff is lint only, no formatter.
-- `playground/` is for throwaway exploration and stays out of git.
+- `playground/` is for throwaway exploration. Ahmed's global gitignore keeps it out of git, not this repo's `.gitignore`.
