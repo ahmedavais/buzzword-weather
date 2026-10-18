@@ -1,4 +1,6 @@
-from buzzword_weather.chart import rates_chart
+import pytest
+
+from buzzword_weather.chart import MOST_LINES, rates_chart
 from buzzword_weather.periods import Month
 
 AUGUST, SEPTEMBER = Month(2026, 8), Month(2026, 9)
@@ -20,7 +22,7 @@ def selections(spec: dict) -> list[dict]:
     return spec.get("params", []) + [param for layer in layers(spec) for param in layer.get("params", [])]
 
 
-def test_draws_a_line_for_each_buzzword_with_a_point_for_each_period():
+def test_draws_a_line_colored_by_buzzword_through_its_rate_in_each_period():
     spec = rates_chart({"Agile": [3.0, 2.5], "Vibe coding": [20.0, 18.0]}, [AUGUST, SEPTEMBER]).to_dict()
 
     rows = next(iter(spec["datasets"].values()))
@@ -104,3 +106,10 @@ def test_draws_a_guide_at_the_hovered_period():
     nearest = next(selection["name"] for selection in selections(spec) if selection["select"]["type"] == "point")
     guide = next(layer for layer in layers(spec) if layer["mark"]["type"] == "rule")
     assert guide["transform"] == [{"filter": {"param": nearest, "empty": False}}]
+
+
+def test_refuses_more_buzzwords_than_it_has_colorblind_safe_colors_for():
+    rates = {f"buzzword {number}": [1.0, 2.0] for number in range(MOST_LINES + 1)}
+
+    with pytest.raises(ValueError, match=f"at most {MOST_LINES} buzzwords"):
+        rates_chart(rates, [AUGUST, SEPTEMBER])

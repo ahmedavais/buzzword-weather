@@ -34,14 +34,13 @@ reload_code_after_a_deploy()
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_POOL, search_phrase_for
-from buzzword_weather.chart import rates_chart
+from buzzword_weather.chart import MOST_LINES, rates_chart
 from buzzword_weather.defaults import pick_defaults
 from buzzword_weather.forecast import Weather, weather_of
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
 
-MOST_TERMS = 7
 CACHED_SERIES = 500
 ALMANAC = Path(__file__).parent / "almanac.json"
 
@@ -64,10 +63,10 @@ def weather_for(name: str) -> Weather:
 
 def starting_buzzwords() -> list[str]:
     try:
-        return pick_defaults([(name, weather_for(name)) for name in DEFAULT_POOL], most=MOST_TERMS)
+        return pick_defaults([(name, weather_for(name)) for name in DEFAULT_POOL], most=MOST_LINES)
     except Exception:
         logging.getLogger(__name__).exception("Couldn't read the pool's weather; starting with the pool's first buzzwords")
-        return DEFAULT_POOL[:MOST_TERMS]
+        return DEFAULT_POOL[:MOST_LINES]
 
 
 recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
@@ -81,7 +80,7 @@ terms = st.multiselect(
     "Buzzwords",
     options=[buzzword.name for buzzword in CATALOG],
     default=starting_buzzwords(),
-    max_selections=MOST_TERMS,
+    max_selections=MOST_LINES,
     accept_new_options=True,
     placeholder="Pick or type a buzzword",
 )

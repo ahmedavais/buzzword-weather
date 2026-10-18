@@ -10,9 +10,12 @@ LEGEND_COLUMNS = 2
 HOVER_POINT_SIZE = 64
 GUIDE_COLOR = "#8a8984"
 COLORBLIND_SAFE_COLORS = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9"]
+MOST_LINES = len(COLORBLIND_SAFE_COLORS)
 
 
 def rates_chart(rates: dict[str, list[float]], periods: list[Period]) -> alt.LayerChart:
+    if len(rates) > MOST_LINES:
+        raise ValueError(f"The chart has colorblind-safe colors for at most {MOST_LINES} buzzwords, not {len(rates)}")
     nearest = alt.selection_point(nearest=True, on="pointerover", fields=["starts"], empty=False)
     buzzwords = _buzzwords_over_time(rates, periods)
     return alt.layer(buzzwords.mark_line(), _guide(buzzwords, nearest), _hover_points(buzzwords, nearest))
