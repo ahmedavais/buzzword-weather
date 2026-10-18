@@ -8,6 +8,9 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
 - CI (`.github/workflows/ci.yml`) runs on every pull request and push to main: `uv run ruff check .` and
   `uv run pytest`, which includes the sensors in `sensors/`. Run both before calling any change done.
 - `uv run pytest -m integration` checks the real Hacker News search API. CI leaves it out.
+- Duplication: the `duplication` job in `.github/workflows/ci.yml`, shared from
+  [karkhana](https://github.com/ahmedavais/karkhana), fails when a change adds code duplicated elsewhere in the repo,
+  tests included. `.jscpd.json` lists the lock and generated files it skips.
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.

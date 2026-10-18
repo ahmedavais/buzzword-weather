@@ -9,6 +9,9 @@ permissions:
   contents: read
 
 jobs:
+  duplication:
+    uses: ahmedavais/karkhana/.github/workflows/duplication.yml@main
+
   test:
     runs-on: ubuntu-latest
     steps:

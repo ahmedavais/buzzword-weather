@@ -1,0 +1,3 @@
+{
+  "ignore": ["uv.lock", "almanac.json"]
+}
