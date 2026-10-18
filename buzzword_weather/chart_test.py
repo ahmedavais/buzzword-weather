@@ -1,6 +1,6 @@
 import pytest
 
-from buzzword_weather.chart import MOST_LINES, rates_chart
+from buzzword_weather.chart import MOST_LINES, line_colors, rates_chart
 from buzzword_weather.periods import Month
 
 AUGUST, SEPTEMBER = Month(2026, 8), Month(2026, 9)
@@ -48,16 +48,6 @@ def test_lets_the_dates_speak_for_themselves():
     assert lines(spec)["encoding"]["x"]["title"] is None
 
 
-def test_lists_buzzwords_in_the_order_the_visitor_picked_them():
-    spec = rates_chart({"Vibe coding": [20.0, 18.0], "Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
-
-    assert lines(spec)["encoding"]["color"]["sort"] == ["Vibe coding", "Agile"]
-
-
-def test_names_each_line_without_a_legend_title():
-    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
-
-    assert lines(spec)["encoding"]["color"]["title"] is None
 
 
 def test_shows_the_buzzword_period_and_rate_on_hover_or_tap():
@@ -81,16 +71,6 @@ def test_gives_each_buzzword_its_own_color_from_a_colorblind_safe_palette_in_ord
     assert lines(spec)["encoding"]["color"]["scale"]["range"] == ["#3987e5", "#d95926"]
 
 
-def test_puts_the_legend_under_the_chart_so_phones_keep_the_full_width():
-    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
-
-    assert lines(spec)["encoding"]["color"]["legend"]["orient"] == "bottom"
-
-
-def test_wraps_the_legend_into_two_columns_so_every_name_fits_on_a_phone():
-    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
-
-    assert lines(spec)["encoding"]["color"]["legend"]["columns"] == 2
 
 
 def test_picks_the_period_nearest_the_pointer_or_finger_so_nobody_has_to_hit_a_thin_line():
@@ -113,3 +93,13 @@ def test_refuses_more_buzzwords_than_it_has_colorblind_safe_colors_for():
 
     with pytest.raises(ValueError, match=f"at most {MOST_LINES} buzzwords"):
         rates_chart(rates, [AUGUST, SEPTEMBER])
+
+
+def test_leaves_naming_the_lines_to_the_weather_list_above_it():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert lines(spec)["encoding"]["color"]["legend"] is None
+
+
+def test_gives_each_buzzword_the_color_of_its_line_in_the_order_picked():
+    assert line_colors(["Vibe coding", "Agile"]) == {"Vibe coding": "#3987e5", "Agile": "#d95926"}

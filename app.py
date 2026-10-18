@@ -34,12 +34,13 @@ reload_code_after_a_deploy()
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_POOL, search_phrase_for
-from buzzword_weather.chart import MOST_LINES, rates_chart
+from buzzword_weather.chart import MOST_LINES, line_colors, rates_chart
 from buzzword_weather.defaults import pick_defaults
 from buzzword_weather.forecast import Weather, weather_of
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
+from buzzword_weather.weather_legend import weather_legend
 
 CACHED_SERIES = 500
 ALMANAC = Path(__file__).parent / "almanac.json"
@@ -102,7 +103,7 @@ except Exception:
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
-st.markdown("  \n".join(f"{weathers[term].icon} {term}: {weathers[term].forecast}" for term in terms))
+st.html(weather_legend(weathers, line_colors(terms)))
 st.altair_chart(rates_chart(mention_rates, list(periods)), width="stretch")
 
 st.caption(

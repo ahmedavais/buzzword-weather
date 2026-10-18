@@ -6,7 +6,6 @@ import pandas as pd
 from buzzword_weather.periods import Period
 
 RATE = "Mentions per 10,000 posts"
-LEGEND_COLUMNS = 2
 HOVER_POINT_SIZE = 64
 GUIDE_COLOR = "#8a8984"
 COLORBLIND_SAFE_COLORS = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9"]
@@ -22,15 +21,14 @@ def rates_chart(rates: dict[str, list[float]], periods: list[Period]) -> alt.Lay
 
 
 def _buzzwords_over_time(rates: dict[str, list[float]], periods: list[Period]) -> alt.Chart:
+    colors = line_colors(list(rates))
     return alt.Chart(_points(rates, periods)).encode(
         x=alt.X("starts:T", title=None),
         y=alt.Y("rate:Q", title=RATE),
         color=alt.Color(
             "buzzword:N",
-            sort=list(rates),
-            scale=alt.Scale(domain=list(rates), range=COLORBLIND_SAFE_COLORS[: len(rates)]),
-            legend=alt.Legend(orient="bottom", columns=LEGEND_COLUMNS),
-            title=None,
+            scale=alt.Scale(domain=list(colors), range=list(colors.values())),
+            legend=None,
         ),
     )
 
@@ -58,3 +56,7 @@ def _points(rates: dict[str, list[float]], periods: list[Period]) -> pd.DataFram
             for period, rate in zip(periods, series, strict=True)
         ]
     )
+
+
+def line_colors(buzzwords: list[str]) -> dict[str, str]:
+    return dict(zip(buzzwords, COLORBLIND_SAFE_COLORS, strict=False))
