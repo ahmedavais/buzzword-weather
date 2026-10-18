@@ -53,6 +53,8 @@ name = "buzzword-weather"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "altair" },
+    { name = "pandas" },
     { name = "streamlit" },
 ]
 
@@ -66,7 +68,11 @@ keep-awake = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "streamlit", specifier = ">=1.65.0" }]
+requires-dist = [
+    { name = "altair", specifier = ">=6.3.0" },
+    { name = "pandas", specifier = ">=3.0.6" },
+    { name = "streamlit", specifier = ">=1.65.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [

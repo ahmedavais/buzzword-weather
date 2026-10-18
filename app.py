@@ -3,7 +3,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-import pandas as pd
 import streamlit as st
 
 from buzzword_weather.code_version import code_version
@@ -35,16 +34,16 @@ reload_code_after_a_deploy()
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_POOL, search_phrase_for
+from buzzword_weather.chart import MOST_LINES, line_colors, rates_chart
 from buzzword_weather.defaults import pick_defaults
 from buzzword_weather.forecast import Weather, weather_of
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
+from buzzword_weather.weather_legend import weather_legend
 
-MOST_TERMS = 7
 CACHED_SERIES = 500
 ALMANAC = Path(__file__).parent / "almanac.json"
-CHART_HEIGHT = 180
 
 
 @st.cache_resource
@@ -65,10 +64,10 @@ def weather_for(name: str) -> Weather:
 
 def starting_buzzwords() -> list[str]:
     try:
-        return pick_defaults([(name, weather_for(name)) for name in DEFAULT_POOL], most=MOST_TERMS)
+        return pick_defaults([(name, weather_for(name)) for name in DEFAULT_POOL], most=MOST_LINES)
     except Exception:
         logging.getLogger(__name__).exception("Couldn't read the pool's weather; starting with the pool's first buzzwords")
-        return DEFAULT_POOL[:MOST_TERMS]
+        return DEFAULT_POOL[:MOST_LINES]
 
 
 recent_months = tuple(Span.LAST_2_YEARS.periods_before(date.today()))
@@ -82,7 +81,7 @@ terms = st.multiselect(
     "Buzzwords",
     options=[buzzword.name for buzzword in CATALOG],
     default=starting_buzzwords(),
-    max_selections=MOST_TERMS,
+    max_selections=MOST_LINES,
     accept_new_options=True,
     placeholder="Pick or type a buzzword",
 )
@@ -104,11 +103,8 @@ except Exception:
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
-period_starts = pd.to_datetime([period.starts_at for period in periods], unit="s")
-for term, rates in mention_rates.items():
-    weather = weathers[term]
-    st.markdown(f"#### {weather.icon} {term}: {weather.forecast}")
-    st.line_chart(pd.Series(rates, index=period_starts, name=term), y_label="Mentions per 10,000 posts", height=CHART_HEIGHT)
+st.html(weather_legend(weathers, line_colors(terms)))
+st.altair_chart(rates_chart(mention_rates, list(periods)), width="stretch")
 
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "

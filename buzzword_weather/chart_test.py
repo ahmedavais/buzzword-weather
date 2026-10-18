@@ -1,0 +1,105 @@
+import pytest
+
+from buzzword_weather.chart import MOST_LINES, line_colors, rates_chart
+from buzzword_weather.periods import Month
+
+AUGUST, SEPTEMBER = Month(2026, 8), Month(2026, 9)
+
+
+def layers(spec: dict) -> list[dict]:
+    return spec.get("layer", [spec])
+
+
+def lines(spec: dict) -> dict:
+    return next(layer for layer in layers(spec) if layer["mark"]["type"] == "line")
+
+
+def hover_points(spec: dict) -> dict:
+    return next(layer for layer in layers(spec) if layer["mark"]["type"] == "point")
+
+
+def selections(spec: dict) -> list[dict]:
+    return spec.get("params", []) + [param for layer in layers(spec) for param in layer.get("params", [])]
+
+
+def test_draws_a_line_colored_by_buzzword_through_its_rate_in_each_period():
+    spec = rates_chart({"Agile": [3.0, 2.5], "Vibe coding": [20.0, 18.0]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    rows = next(iter(spec["datasets"].values()))
+    assert lines(spec)["encoding"]["color"]["field"] == "buzzword"
+    assert [(row["buzzword"], row["rate"]) for row in rows] == [("Agile", 3.0), ("Agile", 2.5), ("Vibe coding", 20.0), ("Vibe coding", 18.0)]
+
+
+def test_does_not_zoom_or_pan_so_scrolling_on_a_phone_scrolls_the_page():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert [selection for selection in selections(spec) if selection.get("bind") == "scales"] == []
+
+
+def test_titles_the_rate_axis_for_readers():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert lines(spec)["encoding"]["y"]["title"] == "Mentions per 10,000 posts"
+
+
+def test_lets_the_dates_speak_for_themselves():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert lines(spec)["encoding"]["x"]["title"] is None
+
+
+
+
+def test_shows_the_buzzword_period_and_rate_on_hover_or_tap():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    rows = next(iter(spec["datasets"].values()))
+    assert [tip["field"] for tip in hover_points(spec)["encoding"]["tooltip"]] == ["buzzword", "period", "rate"]
+    assert [row["period"] for row in rows] == ["Aug 2026", "Sep 2026"]
+
+
+def test_rounds_the_rate_on_hover_to_two_decimals_so_small_buzzwords_still_show():
+    spec = rates_chart({"SAFe": [0.0574894363161, 0.02]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    rate_tip = hover_points(spec)["encoding"]["tooltip"][2]
+    assert (rate_tip["format"], rate_tip["title"]) == (".2f", "Mentions per 10,000 posts")
+
+
+def test_gives_each_buzzword_its_own_color_from_a_colorblind_safe_palette_in_order():
+    spec = rates_chart({"Vibe coding": [20.0, 18.0], "Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert lines(spec)["encoding"]["color"]["scale"]["range"] == ["#3987e5", "#d95926"]
+
+
+
+
+def test_picks_the_period_nearest_the_pointer_or_finger_so_nobody_has_to_hit_a_thin_line():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    nearest = next(selection["select"] for selection in selections(spec) if selection["select"]["type"] == "point")
+    assert (nearest["type"], nearest["nearest"], nearest["on"], nearest["fields"]) == ("point", True, "pointerover", ["starts"])
+
+
+def test_draws_a_guide_at_the_hovered_period():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    nearest = next(selection["name"] for selection in selections(spec) if selection["select"]["type"] == "point")
+    guide = next(layer for layer in layers(spec) if layer["mark"]["type"] == "rule")
+    assert guide["transform"] == [{"filter": {"param": nearest, "empty": False}}]
+
+
+def test_refuses_more_buzzwords_than_it_has_colorblind_safe_colors_for():
+    rates = {f"buzzword {number}": [1.0, 2.0] for number in range(MOST_LINES + 1)}
+
+    with pytest.raises(ValueError, match=f"at most {MOST_LINES} buzzwords"):
+        rates_chart(rates, [AUGUST, SEPTEMBER])
+
+
+def test_leaves_naming_the_lines_to_the_weather_list_above_it():
+    spec = rates_chart({"Agile": [3.0, 2.5]}, [AUGUST, SEPTEMBER]).to_dict()
+
+    assert lines(spec)["encoding"]["color"]["legend"] is None
+
+
+def test_gives_each_buzzword_the_color_of_its_line_in_the_order_picked():
+    assert line_colors(["Vibe coding", "Agile"]) == {"Vibe coding": "#3987e5", "Agile": "#d95926"}

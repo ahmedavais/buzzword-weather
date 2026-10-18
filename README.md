@@ -99,6 +99,10 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/defaults.py`: the starting buzzwords, picked from the curated `DEFAULT_POOL` in
   `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather
   changes
+- `buzzword_weather/chart.py`: every chosen buzzword on one chart with a shared axis, in colorblind-safe colors,
+  with no zoom or pan so scrolling past it on a phone scrolls the page; hovering or tapping shows the nearest period
+- `buzzword_weather/weather_legend.py`: the weather list above the chart, which doubles as its legend with a dot in
+  each line's color
 - `buzzword_weather/code_version.py`: the version of the package's code, from its source files
 - `app.py`: the Streamlit page; it reloads the code after a deploy, then only renders
 - `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep
