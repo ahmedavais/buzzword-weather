@@ -1,0 +1,4 @@
+plugins = ["python", "generic"]
+
+[sensors.jscpd]
+disabled = true
