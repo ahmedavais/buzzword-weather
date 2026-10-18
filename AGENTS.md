@@ -11,6 +11,11 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
 - Duplication: the `duplication` job in `.github/workflows/ci.yml`, shared from
   [karkhana](https://github.com/ahmedavais/karkhana), fails when a change adds code duplicated elsewhere in the repo,
   tests included. `.jscpd.json` lists the lock and generated files it skips.
+- Habit Hooks: `.habit-hooks/config.toml` opts this repo into Ahmed's global Claude Code Stop hook. When Claude stops,
+  it checks what the branch changed for structural smells (too many parameters, high complexity, oversized functions and
+  files, unused imports and dependencies) and hands Claude a coaching guide for each. Habit Hooks picks the Ruff rules;
+  the limits are Ruff's defaults, such as 5 parameters, because this repo's Ruff config sets none. It needs `uv sync`,
+  so deptry is in `.venv`.
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.
