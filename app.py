@@ -90,13 +90,8 @@ if not terms:
     st.info("Pick a buzzword, or type your own, to see its weather.")
     st.stop()
 
-span = st.segmented_control("History", options=list(Span), format_func=lambda span: span.label, default=Span.LAST_2_YEARS)
-span = span or Span.LAST_2_YEARS
-periods = tuple(span.periods_before(date.today()))
-
 try:
     with st.spinner("Reading the barometer…"):
-        mention_rates = {term: mention_rates_across(search_phrase_for(term), periods) for term in terms}
         current_rates = {term: mention_rates_across(search_phrase_for(term), recent_months) for term in terms}
         weathers = {term: weather_for(term) for term in terms}
 except Exception:
@@ -118,8 +113,20 @@ if len(terms) % 2:
         st.html(forecast_card(last, weathers[last], current_rates[last][-1]))
 
 selected_term = st.selectbox("Open a buzzword's history", terms)
+span = st.segmented_control("History", options=list(Span), format_func=lambda span: span.label, default=Span.LAST_2_YEARS)
+span = span or Span.LAST_2_YEARS
+periods = tuple(span.periods_before(date.today()))
+
+try:
+    with st.spinner("Reading the barometer…"):
+        history = mention_rates_across(search_phrase_for(selected_term), periods)
+except Exception:
+    logging.getLogger(__name__).exception("Hacker News search failed")
+    st.error("Hacker News search didn't answer just now. Try again in a minute.")
+    st.stop()
+
 st.subheader(f"{selected_term} history")
-st.altair_chart(rates_chart({selected_term: mention_rates[selected_term]}, list(periods)), width="stretch")
+st.altair_chart(rates_chart({selected_term: history}, list(periods)), width="stretch")
 
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
