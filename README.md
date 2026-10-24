@@ -1,8 +1,8 @@
 # Buzzword weather
 
-Engineering buzzwords and their weather: how often Hacker News mentions each term over the last 2 years, the last
-10 years or all time since Hacker News began in 2007, and a forecast for each one from its last 24 months (calm, a
-front moving in, a storm passing, clearing skies and more).
+Engineering buzzwords and their weather: a current forecast for each selected term, plus its Hacker News history over
+the last 2 years, the last 10 years or all time since Hacker News began in 2007. The forecast reads each term's last
+24 months as calm, a front moving in, a storm passing, clearing skies and more.
 
 Every count is shown as mentions per 10,000 posts, because Hacker News posts about 13 times as much now as in 2008.
 In raw counts nearly every buzzword would look bigger today than it ever was.
@@ -99,10 +99,9 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/defaults.py`: the starting buzzwords, picked from the curated `DEFAULT_POOL` in
   `catalog.py`: in pool order, at most two in one kind of weather, so the first view stays varied as the weather
   changes
-- `buzzword_weather/chart.py`: every chosen buzzword on one chart with a shared axis, in colorblind-safe colors,
-  with no zoom or pan so scrolling past it on a phone scrolls the page; hovering or tapping shows the nearest period
-- `buzzword_weather/weather_legend.py`: the weather list above the chart, which doubles as its legend with a dot in
-  each line's color
+- `buzzword_weather/chart.py`: one buzzword's history chart, with no zoom or pan so scrolling past it on a phone
+  scrolls the page; hovering or tapping shows the nearest period
+- `buzzword_weather/forecast_card.py`: the current weather card for a buzzword
 - `buzzword_weather/code_version.py`: the version of the package's code, from its source files
 - `app.py`: the Streamlit page; it reloads the code after a deploy, then only renders
 - `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep

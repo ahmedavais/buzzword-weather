@@ -34,13 +34,13 @@ reload_code_after_a_deploy()
 from buzzword_weather.almanac import Almanac
 from buzzword_weather.barometer import Barometer
 from buzzword_weather.catalog import CATALOG, DEFAULT_POOL, search_phrase_for
-from buzzword_weather.chart import MOST_LINES, line_colors, rates_chart
+from buzzword_weather.chart import MOST_LINES, rates_chart
 from buzzword_weather.defaults import pick_defaults
 from buzzword_weather.forecast import Weather, weather_of
+from buzzword_weather.forecast_card import forecast_card
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
-from buzzword_weather.weather_legend import weather_legend
 
 CACHED_SERIES = 500
 ALMANAC = Path(__file__).parent / "almanac.json"
@@ -75,36 +75,51 @@ all_quarters = tuple(Span.ALL_TIME.periods_before(date.today()))
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
 st.title("🌦️ Buzzword weather")
-st.write("How often Hacker News talks about each engineering buzzword over the years, and the weather it's in now.")
+st.write("The Hacker News forecast for engineering buzzwords.")
 
 terms = st.multiselect(
-    "Buzzwords",
+    "Choose the terms in your forecast",
     options=[buzzword.name for buzzword in CATALOG],
-    default=starting_buzzwords(),
+    default=starting_buzzwords()[:5],
     max_selections=MOST_LINES,
     accept_new_options=True,
     placeholder="Pick or type a buzzword",
 )
 
-span = st.segmented_control("History", options=list(Span), format_func=lambda span: span.label, default=Span.LAST_2_YEARS)
-span = span or Span.LAST_2_YEARS
-periods = tuple(span.periods_before(date.today()))
-
 if not terms:
     st.info("Pick a buzzword, or type your own, to see its weather.")
     st.stop()
 
+span = st.segmented_control("History", options=list(Span), format_func=lambda span: span.label, default=Span.LAST_2_YEARS)
+span = span or Span.LAST_2_YEARS
+periods = tuple(span.periods_before(date.today()))
+
 try:
     with st.spinner("Reading the barometer…"):
         mention_rates = {term: mention_rates_across(search_phrase_for(term), periods) for term in terms}
+        current_rates = {term: mention_rates_across(search_phrase_for(term), recent_months) for term in terms}
         weathers = {term: weather_for(term) for term in terms}
 except Exception:
     logging.getLogger(__name__).exception("Hacker News search failed")
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
-st.html(weather_legend(weathers, line_colors(terms)))
-st.altair_chart(rates_chart(mention_rates, list(periods)), width="stretch")
+st.subheader("The forecast")
+for left, right in zip(terms[::2], terms[1::2], strict=False):
+    columns = st.columns(2)
+    with columns[0].container(border=True):
+        st.html(forecast_card(left, weathers[left], current_rates[left][-1]))
+    with columns[1].container(border=True):
+        st.html(forecast_card(right, weathers[right], current_rates[right][-1]))
+
+if len(terms) % 2:
+    with st.container(border=True):
+        last = terms[-1]
+        st.html(forecast_card(last, weathers[last], current_rates[last][-1]))
+
+selected_term = st.selectbox("Open a buzzword's history", terms)
+st.subheader(f"{selected_term} history")
+st.altair_chart(rates_chart({selected_term: mention_rates[selected_term]}, list(periods)), width="stretch")
 
 st.caption(
     f"Counts Hacker News stories and comments that use the exact phrase (SAFe searches for \"scaled agile\", SOA for "
