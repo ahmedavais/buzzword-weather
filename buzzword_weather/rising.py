@@ -45,8 +45,8 @@ def risers(this_week: WeekOfWords, weeks_before: list[WeekOfWords]) -> list[Rise
         return None
     baseline = weeks_before[-BASELINE_WEEKS:]
     rising = [riser for riser in (_riser(term, this_week, baseline) for term in _counted(this_week)) if riser.rise >= LEAST_RISE]
-    shown = _without_parts_of_phrases(rising, this_week)
-    return sorted(shown, key=lambda riser: (not riser.is_new, -riser.rise, -riser.rate, riser.term))[:MOST_RISERS]
+    ranked = sorted(rising, key=lambda riser: (not riser.is_new, -riser.rise, -riser.rate, riser.term))
+    return _top_without_parts_of_shown_phrases(ranked, this_week)
 
 
 def _counted(week: WeekOfWords) -> list[str]:
@@ -58,12 +58,21 @@ def _riser(term: str, this_week: WeekOfWords, baseline: list[WeekOfWords]) -> Ri
     return Riser(term, this_week.rate(term), usual, is_new=all(term not in week.stories for week in baseline))
 
 
-def _without_parts_of_phrases(rising: list[Riser], week: WeekOfWords) -> list[Riser]:
-    hidden = {
+def _top_without_parts_of_shown_phrases(ranked: list[Riser], week: WeekOfWords) -> list[Riser]:
+    top = ranked[:MOST_RISERS]
+    hidden = _parts_hidden_by_phrases(top, week)
+    while hidden & {riser.term for riser in top}:
+        ranked = [riser for riser in ranked if riser.term not in hidden]
+        top = ranked[:MOST_RISERS]
+        hidden |= _parts_hidden_by_phrases(top, week)
+    return top
+
+
+def _parts_hidden_by_phrases(shown: list[Riser], week: WeekOfWords) -> set[str]:
+    return {
         part
-        for riser in rising
+        for riser in shown
         if " " in riser.term
         for part in riser.term.split(" ")
         if week.stories[riser.term] >= PART_SHARE * week.stories.get(part, 0)
     }
-    return [riser for riser in rising if riser.term not in hidden]

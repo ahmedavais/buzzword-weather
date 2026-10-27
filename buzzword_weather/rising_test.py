@@ -96,3 +96,14 @@ def test_is_a_new_front_only_when_under_the_floor_in_every_week_before():
     [mcp] = risers(this_week(mcp=40), weeks_before)
 
     assert not mcp.is_new
+
+
+def test_keeps_a_word_whose_phrase_falls_outside_the_top_10():
+    stronger = {f"word{number}": 30 for number in range(10)}
+    latest = WeekOfWords(TITLES, {**stronger, "agent": 80, "agent skills": 60})
+    weeks_before = [WeekOfWords(TITLES, {**dict.fromkeys(stronger, 10), "agent": 10, "agent skills": 28})] * BASELINE_WEEKS
+
+    found = terms(risers(latest, weeks_before))
+
+    assert "agent" in found
+    assert "agent skills" not in found
