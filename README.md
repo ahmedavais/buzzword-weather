@@ -131,6 +131,8 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/weekly_words.py`, `week_recorder.py`: the weekly record, and filling in the missing weeks
 - `buzzword_weather/rising.py`: a week's risers against the 12 weeks before, and their heat
 - `buzzword_weather/this_week.py`: the rows of "This week on HN"
+- `buzzword_weather/story_link.py`: a link to a story's discussion, with its title escaped so it can't break the link,
+  mention anyone on GitHub or link an issue
 - `buzzword_weather/candidates.py`: words that keep rising, proposed for the catalog
 - `buzzword_weather/code_version.py`: the version of the package's code, from its source files
 - `app.py`: the Streamlit page; it reloads the code after a deploy, then only renders

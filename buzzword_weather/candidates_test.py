@@ -77,3 +77,11 @@ def test_tells_the_reviewer_why_a_candidate_is_proposed():
 
     assert "in 3 of the last 4 weeks" in mcp.pull_request_body
     assert "- [MCP week 40](https://news.ycombinator.com/item?id=40)" in mcp.pull_request_body
+
+
+def test_never_mentions_anyone_named_in_a_title():
+    record = WeeklyWords({week: WeekOfWords(1000, {}, {"mcp": [(1, "MCP, asks @someuser")]}) for week in WEEKS[:3]})
+
+    [mcp] = candidates(record, catalog_phrases=set())
+
+    assert "@someuser" not in mcp.pull_request_body

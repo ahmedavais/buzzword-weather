@@ -57,9 +57,3 @@ def test_links_each_example_title_to_its_hacker_news_discussion():
     row = Row(Riser("rust", rate=8, usual=1), [(7, "Rust in the kernel")])
 
     assert row.example_links == ["[Rust in the kernel](https://news.ycombinator.com/item?id=7)"]
-
-
-def test_escapes_markdown_in_titles():
-    row = Row(Riser("rust", rate=8, usual=1), [(7, "Rust [pdf] costs $5 *now*")])
-
-    assert row.example_links == [r"[Rust \[pdf\] costs \$5 \*now\*](https://news.ycombinator.com/item?id=7)"]

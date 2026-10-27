@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 from buzzword_weather.periods import Week
+from buzzword_weather.story_link import story_link
 from buzzword_weather.weekly_words import Example, WeeklyWords
 
 WEEKS_LOOKED_AT = 4
@@ -26,7 +27,7 @@ class Candidate:
     @property
     def pull_request_body(self) -> str:
         weeks = ", ".join(week.label for week in self.weeks)
-        examples = "\n".join(f"- [{title}](https://news.ycombinator.com/item?id={story_id})" for story_id, title in self.examples)
+        examples = "\n".join(f"- {story_link(example)}" for example in self.examples)
         return (
             f"\"{self.phrase}\" rose among Hacker News story titles in {len(self.weeks)} of the last {WEEKS_LOOKED_AT} "
             f"weeks: {weeks}.\n\nThis adds {self.name} to the catalog in the rising era. Merge it to give it history and a "
