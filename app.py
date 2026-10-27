@@ -41,9 +41,12 @@ from buzzword_weather.forecast_card import forecast_card
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
+from buzzword_weather.this_week import ThisWeek, this_week_on_hn
+from buzzword_weather.weekly_words import WeeklyWords
 
 CACHED_SERIES = 500
 ALMANAC = Path(__file__).parent / "almanac.json"
+WEEKLY_WORDS = Path(__file__).parent / "weekly_words.json"
 
 
 @st.cache_resource
@@ -62,6 +65,32 @@ def weather_for(name: str) -> Weather:
     return weather_of(mention_rates_across(phrase, recent_months), mention_rates_across(phrase, all_quarters))
 
 
+@st.cache_data(show_spinner=False)
+def this_week_from(recorded: str) -> ThisWeek | None:
+    return this_week_on_hn(WeeklyWords.from_json(recorded))
+
+
+def this_week() -> ThisWeek | None:
+    try:
+        return this_week_from(WEEKLY_WORDS.read_text())
+    except Exception:
+        logging.getLogger(__name__).exception("Couldn't read the weekly words; leaving out This week on HN")
+        return None
+
+
+def show_this_week(this_week: ThisWeek) -> None:
+    st.subheader("This week on HN")
+    st.caption(f"Words Hacker News story titles used far more than usual, {this_week.week.label}.")
+    if this_week.rows is None:
+        st.info("Still gathering 12 weeks of titles to compare against.")
+    elif not this_week.rows:
+        st.info("A quiet week: no word in the titles reached twice its usual rate.")
+    for row in this_week.rows or []:
+        with st.expander(row.headline):
+            for link in row.example_links:
+                st.markdown(f"- {link}")
+
+
 def starting_buzzwords() -> list[str]:
     try:
         return pick_defaults([(name, weather_for(name)) for name in DEFAULT_POOL], most=MOST_LINES)
@@ -76,6 +105,9 @@ all_quarters = tuple(Span.ALL_TIME.periods_before(date.today()))
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
 st.title("🌦️ Buzzword weather")
 st.write("The Hacker News forecast for engineering buzzwords.")
+
+if latest_week := this_week():
+    show_this_week(latest_week)
 
 terms = st.multiselect(
     "Choose the terms in your forecast",

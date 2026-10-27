@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-ERAS = ["process", "architecture", "data", "hype", "the AI era"]
+ERAS = ["process", "architecture", "data", "hype", "the AI era", "rising"]
 
 
 @dataclass(frozen=True)

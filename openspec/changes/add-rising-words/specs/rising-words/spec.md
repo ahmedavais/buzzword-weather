@@ -13,8 +13,8 @@ A recorded week SHALL NOT be recorded again. The weekly record SHALL be committe
 wait on Hacker News for this section.
 
 #### Scenario: Recording on a Monday
-- **WHEN** the weekly recording runs on Monday 3 November 2026
-- **THEN** it records the week from 27 October to 2 November 2026 inclusive and no later week
+- **WHEN** the weekly recording runs on Monday 2 November 2026
+- **THEN** it records the week from 26 October to 1 November 2026 inclusive and no later week
 
 #### Scenario: A week already in the record
 - **WHEN** the recording runs again for a week that is already recorded

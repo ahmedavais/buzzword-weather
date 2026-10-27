@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 
 @dataclass(frozen=True)
@@ -67,7 +67,57 @@ class Quarter:
         return Quarter(self.year - 1, 4) if self.quarter == 1 else Quarter(self.year, self.quarter - 1)
 
 
+@dataclass(frozen=True)
+class Week:
+    year: int
+    week: int
+
+    @property
+    def monday(self) -> date:
+        return date.fromisocalendar(self.year, self.week, 1)
+
+    @property
+    def starts_at(self) -> int:
+        return _midnight(self.monday)
+
+    @property
+    def ends_at(self) -> int:
+        return self.next().starts_at
+
+    @property
+    def label(self) -> str:
+        sunday = self.monday + timedelta(days=6)
+        return f"{self.monday.day} {self.monday:%b} to {sunday.day} {sunday:%b %Y}"
+
+    @property
+    def key(self) -> str:
+        return f"{self.year}-W{self.week:02d}"
+
+    @staticmethod
+    def from_key(key: str) -> "Week":
+        year, week = key.split("-W")
+        return Week(int(year), int(week))
+
+    def next(self) -> "Week":
+        return week_of(self.monday + timedelta(days=7))
+
+    def previous(self) -> "Week":
+        return week_of(self.monday - timedelta(days=7))
+
+
 Period = Month | Quarter
+
+
+def week_of(day: date) -> Week:
+    year, week, _ = day.isocalendar()
+    return Week(year, week)
+
+
+def finished_weeks_before(day: date, count: int) -> list[Week]:
+    weeks = [week_of(day).previous()]
+    while len(weeks) < count:
+        weeks.insert(0, weeks[0].previous())
+    return weeks
 
 
 def quarter_of(day: date) -> Quarter:
@@ -102,7 +152,11 @@ def complete_months_before(day: date, count: int) -> list[Month]:
 
 
 def _timestamp(year: int, month: int) -> int:
-    return int(datetime(year, month, 1, tzinfo=UTC).timestamp())
+    return _midnight(date(year, month, 1))
+
+
+def _midnight(day: date) -> int:
+    return int(datetime(day.year, day.month, day.day, tzinfo=UTC).timestamp())
 
 
 def edge_months(periods: list[Period]) -> list[Month]:

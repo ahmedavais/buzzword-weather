@@ -23,24 +23,27 @@ are assumptions that an integration test checks.
 
 ## Decisions
 
-**Fetch titles in slices under the cap.** `HackerNews.story_titles(start, end)` queries `search_by_date` with
+**Fetch titles in slices under the cap.** `HackerNews.stories(starts_at, ends_at)` queries `search_by_date` with
 `tags=story`, `hitsPerPage=1000` and the time window, asking only for `title`, `url` and `objectID`
 (`attributesToRetrieve`). It splits a week into slices of 6 hours (28 requests) by default. When a slice comes back
 with `nbHits` above what it returned, it halves the slice and retries, so a busy week can't lose titles silently.
 The alternative, the official Firebase API one item at a time, would take 50,000+ requests a week.
 
-**Store counts, not titles.** `weekly_words.json` maps each ISO week (`2026-W44`) to its title count and, for every word
-or phrase that appeared in at least 3 stories, its story count plus up to 3 example items (id, title). Words below 3
-stories are dropped at record time. That rule already applies to ranking, and dropping them keeps the file at roughly
-30 to 60 KB a week. Thirteen weeks of history are kept, plus the 4 weeks the candidate rule needs (it fits inside the
-13). Older weeks are pruned, so the file stays under 1 MB.
+**Store counts, not titles, and each week's risers.** `weekly_words.json` maps each ISO week (`2026-W44`) to its title
+count, the story count of every word or phrase at least 3 stories used, and that week's risers in rank order with up to
+3 example titles each. The risers are ranked when the week is recorded, against the 12 weeks before it, and stored, so
+the candidate rule can read the last 4 weeks' risers from a record that keeps only 13 weeks. Ranking those 4 weeks
+afresh would need 16. Example titles are kept only for risers, which keeps a week to tens of kilobytes. The app ranks
+the latest week again from the counts to show each riser's rate and rise. Ranking is deterministic, so it gets the
+same list.
 
   Alternative: store raw titles and count in the app. That gives a bigger file, repeats the work on every visit, and
   puts other people's titles in the repo in bulk.
 
 **Tokenizing.** `titles.py` lowercases, strips the "Show HN:"-style prefix and bracketed tags, splits on anything but
 letters, digits, `+`, `#` and `.` inside a word (so "c++", "c#" and "node.js" survive), and drops trailing dots. It
-removes stopwords and bare numbers, then forms bigrams from adjacent kept tokens in the original order. The stopwords
+removes stopwords and bare numbers, then forms bigrams from tokens that were next to each other in the title, both kept, with no punctuation between
+them. So "state of the art" gives no "state art". The stopwords
 are a small list in code, around 150 words, with no NLP dependency. The words of the story's domain (`github.blog` gives
 "github" and "blog") are removed from that title's tokens.
 
@@ -60,7 +63,8 @@ runs `uv run pytest` and commits `weekly_words.json` to main, like the almanac. 
 `find_candidates.py`, which prints JSON. For each candidate without an existing PR (searched by the branch name
 `candidate/<slug>` in open and closed PRs), it adds a line to `CATALOG` with `add_candidate.py`, a small text edit
 that inserts `_buzzword("<Name>", "rising")` after the last catalog entry. Then it runs the tests and opens a PR with
-`gh pr create`. Names keep the casing most common in the example titles ("MCP", "Claude Code").
+`gh pr create`. GitHub doesn't run workflows on pull requests opened with the Action's own token, so the job's own
+test run stands in for CI. The repository must allow Actions to create pull requests (Settings → Actions → General). Names keep the casing most common in the example titles ("MCP", "Claude Code").
 
   Alternative: candidates shown in the app only. Rejected in the grilling: Ahmed wants a PR to merge.
 
@@ -71,13 +75,15 @@ that inserts `_buzzword("<Name>", "rising")` after the last catalog entry. Then 
 ## Risks / Trade-offs
 
 - [The Algolia cap or volumes differ from the assumptions] → Adaptive slice halving, plus an integration test that
-  fetches one real 6-hour slice and asserts it returns every hit it reports.
+  fetches one real 6-hour slice and asserts it returns every hit it reports. The weekly Action runs it before
+  recording, so a changed API stops the run instead of committing a thin week.
 - [Weekly commits to main redeploy the app every Monday] → The same deploy-reload path the almanac uses, already
   proven. The commit happens only after the tests pass.
 - [Risers dominated by news, not tech, such as elections or deaths] → Accepted: the section is "This week on HN", not
   "this week's buzzwords". Candidate PRs are Ahmed's filter.
-- [Stopword list misses produce junk risers] → Sensor test in `sensors/` that fails if a stopword-looking word (3
-  letters or fewer, all common) ranks in the latest real week.
+- [Stopword list misses produce junk risers, or the fetch quietly loses stories] → A sensor in `sensors/` fails when
+  a stopword or number ever ranks, a week counted fewer than 2,000 titles, or the record stops more than 2 weeks back.
+  It skips until the backfill.
 - [Tokenizing quirks such as "C++", "Node.js", "GPT-5"] → Unit tests for each. Hyphenated words stay one token
   ("gpt-5", "low-code").
 - [Candidate PR edits Python source] → Tests run in the PR's CI, and the adversarial review sees it like any other
