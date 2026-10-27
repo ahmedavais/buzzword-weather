@@ -24,7 +24,11 @@ def test_names_each_buzzword_once():
 
 
 def test_places_every_buzzword_in_a_known_era():
-    assert {buzzword.era for buzzword in CATALOG} == set(ERAS)
+    assert {buzzword.era for buzzword in CATALOG} <= set(ERAS)
+
+
+def test_keeps_an_era_for_buzzwords_promoted_from_rising_words():
+    assert "rising" in ERAS
 
 
 def test_draws_defaults_from_a_pool_of_catalog_buzzwords():

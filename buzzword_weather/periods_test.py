@@ -3,10 +3,12 @@ from datetime import UTC, date, datetime
 from buzzword_weather.periods import (
     Month,
     Quarter,
+    Week,
     complete_months_before,
     complete_quarters_before,
     complete_quarters_since,
     edge_months,
+    finished_weeks_before,
     months_ending,
 )
 
@@ -69,3 +71,32 @@ def test_knows_the_months_that_begin_and_end_each_period():
         Month(2026, 9),
         Month(2026, 10),
     ]
+
+
+def test_a_week_runs_from_monday_midnight_to_the_next_monday_in_utc():
+    week = Week(2026, 44)
+
+    assert week.starts_at == int(datetime(2026, 10, 26, tzinfo=UTC).timestamp())
+    assert week.ends_at == int(datetime(2026, 11, 2, tzinfo=UTC).timestamp())
+
+
+def test_a_week_reads_as_its_monday_to_its_sunday():
+    assert Week(2026, 44).label == "26 Oct to 1 Nov 2026"
+
+
+def test_a_week_keys_by_its_iso_number_and_back():
+    assert Week(2026, 2).key == "2026-W02"
+    assert Week.from_key("2026-W02") == Week(2026, 2)
+
+
+def test_weeks_cross_into_the_next_iso_year():
+    assert Week(2026, 53).next() == Week(2027, 1)
+    assert Week(2027, 1).previous() == Week(2026, 53)
+
+
+def test_a_monday_run_finishes_with_the_week_that_just_ended():
+    assert finished_weeks_before(date(2026, 11, 2), count=2) == [Week(2026, 43), Week(2026, 44)]
+
+
+def test_a_sunday_run_leaves_out_the_week_still_in_progress():
+    assert finished_weeks_before(date(2026, 11, 1), count=1) == [Week(2026, 43)]
