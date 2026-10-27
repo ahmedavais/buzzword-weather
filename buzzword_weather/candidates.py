@@ -11,6 +11,7 @@ WEEKS_LOOKED_AT = 4
 LEAST_WEEKS_RISEN = 3
 CATALOG_START = "CATALOG = ["
 CATALOG_END = "\n]\n"
+SPELLED_OUT = {"+": "-plus-", "#": "-sharp-", ".": "-dot-"}
 
 
 @dataclass(frozen=True)
@@ -22,7 +23,8 @@ class Candidate:
 
     @property
     def slug(self) -> str:
-        return re.sub(r"[^a-z0-9]+", "-", self.phrase).strip("-")
+        spelled = "".join(SPELLED_OUT.get(character, character) for character in self.phrase)
+        return re.sub(r"[^a-z0-9]+", "-", spelled).strip("-")
 
     @property
     def pull_request_body(self) -> str:

@@ -52,7 +52,13 @@ def test_keeps_the_examples_from_the_weeks_it_rose():
 
 
 def test_slugs_a_phrase_for_a_branch_name():
-    assert Candidate("node.js streams", "Node.js streams", [], []).slug == "node-js-streams"
+    assert Candidate("claude code", "Claude Code", [], []).slug == "claude-code"
+
+
+def test_gives_phrases_that_differ_only_in_symbols_their_own_slugs():
+    slugs = [Candidate(phrase, phrase, [], []).slug for phrase in ["c++", "c#", "c", "node.js", "node js"]]
+
+    assert slugs == ["c-plus-plus", "c-sharp", "c", "node-dot-js", "node-js"]
 
 
 def test_adds_a_candidate_to_the_catalog_in_the_rising_era():
