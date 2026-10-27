@@ -65,3 +65,11 @@ def test_leaves_out_the_words_of_the_site_the_story_links_to():
 
 def test_keeps_every_word_when_the_story_links_nowhere():
     assert "github" in terms_in("GitHub Copilot pricing", url=None)
+
+
+def test_leaves_out_money_amounts():
+    assert terms_in("$25B gas venture, $10k bounty, 3x faster") == {"gas", "venture", "gas venture", "bounty", "faster"}
+
+
+def test_leaves_out_cve_ids():
+    assert terms_in("PHP2Shell (CVE-2026-109618) exploit") == {"php2shell", "exploit"}

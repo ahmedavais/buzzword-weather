@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from buzzword_weather.periods import Week
-from buzzword_weather.rising import BASELINE_WEEKS, Riser, risers
+from buzzword_weather.rising import BASELINE_WEEKS, Riser, measured
 from buzzword_weather.story_link import story_link
 from buzzword_weather.weekly_words import LEAST_STORIES, Example, WeeklyWords
 
@@ -16,7 +16,6 @@ class Row:
         heat = self.riser.heat
         rise = f"under {LEAST_STORIES} stories a week before" if self.riser.is_new else f"{_times(self.riser.rise)} usual"
         return f"{heat.emoji} **{self.riser.term}** · {heat.value} · {rise} · {self.riser.rate:.1f} per 10,000 titles"
-
 
     @property
     def example_links(self) -> list[str]:
@@ -38,9 +37,10 @@ def this_week_on_hn(record: WeeklyWords) -> ThisWeek | None:
     if latest is None:
         return None
     words = record.weeks[latest]
-    found = risers(words, record.before(latest, BASELINE_WEEKS))
-    rows = None if found is None else [Row(riser, words.risers.get(riser.term, [])) for riser in found]
-    return ThisWeek(latest, rows)
+    weeks_before = record.before(latest, BASELINE_WEEKS)
+    if len(weeks_before) < BASELINE_WEEKS:
+        return ThisWeek(latest, None)
+    return ThisWeek(latest, [Row(measured(term, words, weeks_before), examples) for term, examples in words.risers.items()])
 
 
 def _times(rise: float) -> str:

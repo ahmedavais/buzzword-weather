@@ -1,15 +1,24 @@
-from buzzword_weather.rising import BASELINE_WEEKS, Heat, Riser, risers
+from buzzword_weather import rising
+from buzzword_weather.rising import BASELINE_WEEKS, Heat, Riser
 from buzzword_weather.weekly_words import WeekOfWords
 
 TITLES = 10_000
 
 
 def quiet_weeks(**stories: int) -> list[WeekOfWords]:
-    return [WeekOfWords(TITLES, dict(stories))] * BASELINE_WEEKS
+    return [this_week(**stories)] * BASELINE_WEEKS
 
 
 def this_week(**stories: int) -> WeekOfWords:
     return WeekOfWords(TITLES, {term.replace("_", " "): count for term, count in stories.items()})
+
+
+def separate_stories(week: WeekOfWords) -> dict[str, set[int]]:
+    return {term: {hash((term, number)) for number in range(count)} for term, count in week.stories.items()}
+
+
+def risers(week: WeekOfWords, weeks_before: list[WeekOfWords], stories_using: dict[str, set[int]] | None = None) -> list[Riser] | None:
+    return rising.risers(week, weeks_before, stories_using or separate_stories(week))
 
 
 def terms(found: list[Riser] | None) -> list[str]:
@@ -38,14 +47,18 @@ def test_ranks_only_words_at_twice_their_usual_rate_or_more():
     assert terms(risers(this_week(rust=19, go=20), quiet_weeks(rust=10, go=10))) == ["go"]
 
 
-def test_ranks_a_word_too_rare_to_record_before_first_as_a_new_front():
-    found = risers(this_week(rust=90, mcp=5), quiet_weeks(rust=1))
+def test_calls_a_word_too_rare_to_record_before_a_new_front():
+    [mcp] = risers(this_week(mcp=5), quiet_weeks())
 
-    assert terms(found) == ["mcp", "rust"]
-    assert found[0].heat is Heat.NEW_FRONT
+    assert mcp.heat is Heat.NEW_FRONT
+    assert mcp.rise == 2.5
 
 
-def test_orders_new_words_by_their_rate_this_week():
+def test_ranks_new_fronts_and_known_words_together_by_rise():
+    assert terms(risers(this_week(rust=90, mcp=5), quiet_weeks(rust=3))) == ["rust", "mcp"]
+
+
+def test_orders_new_fronts_by_their_rate_this_week():
     assert terms(risers(this_week(mcp=5, sora=9), quiet_weeks())) == ["sora", "mcp"]
 
 
@@ -63,16 +76,23 @@ def test_shows_at_most_10_words():
     assert len(risers(WeekOfWords(TITLES, many), quiet_weeks())) == 10
 
 
-def test_shows_a_phrase_instead_of_a_word_mostly_used_inside_it():
-    found = risers(this_week(claude_code=30, claude=35, code=200), quiet_weeks(claude=5, code=190))
+def test_leaves_out_a_word_whose_stories_are_mostly_those_of_a_word_shown_above_it():
+    week = this_week(emudhra=50, emudhra_intermediate=13, certificates=20, brotli=12)
+    stories = {
+        "emudhra": set(range(50)),
+        "emudhra intermediate": set(range(13)),
+        "certificates": set(range(36, 56)),
+        "brotli": set(range(100, 112)),
+    }
 
-    assert terms(found) == ["claude code"]
+    assert terms(risers(week, quiet_weeks(certificates=2), stories)) == ["emudhra", "brotli"]
 
 
-def test_keeps_a_word_that_rises_mostly_outside_the_phrase():
-    found = risers(this_week(crowdstrike_outage=10, crowdstrike=40), quiet_weeks(crowdstrike=1))
+def test_keeps_a_word_that_shares_few_of_its_stories_with_those_above_it():
+    week = this_week(php2shell=50, php=120)
+    stories = {"php2shell": set(range(50)), "php": set(range(30, 150))}
 
-    assert set(terms(found)) == {"crowdstrike", "crowdstrike outage"}
+    assert terms(risers(week, quiet_weeks(php=7), stories)) == ["php2shell", "php"]
 
 
 def test_names_the_heat_by_how_far_a_word_rose():
@@ -98,12 +118,12 @@ def test_is_a_new_front_only_when_under_the_floor_in_every_week_before():
     assert not mcp.is_new
 
 
-def test_keeps_a_word_whose_phrase_falls_outside_the_top_10():
-    stronger = {f"word{number}": 30 for number in range(10)}
-    latest = WeekOfWords(TITLES, {**stronger, "agent": 80, "agent skills": 60})
-    weeks_before = [WeekOfWords(TITLES, {**dict.fromkeys(stronger, 10), "agent": 10, "agent skills": 28})] * BASELINE_WEEKS
+def test_fills_the_slot_of_a_skipped_word_with_the_next_one_down():
+    eight = {f"word{number}": 10 for number in range(8)}
+    week = this_week(**eight, agent_skills=60, agent=80, filler=6)
+    stories = {**separate_stories(week), "agent skills": set(range(60)), "agent": set(range(80))}
+    weeks_before = quiet_weeks(**dict.fromkeys(eight, 2), agent_skills=5, agent=10, filler=2)
 
-    found = terms(risers(latest, weeks_before))
+    found = terms(risers(week, weeks_before, stories))
 
-    assert "agent" in found
-    assert "agent skills" not in found
+    assert found == ["agent skills", *eight, "filler"]

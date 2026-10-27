@@ -57,3 +57,11 @@ def test_links_each_example_title_to_its_hacker_news_discussion():
     row = Row(Riser("rust", rate=8, usual=1), [(7, "Rust in the kernel")])
 
     assert row.example_links == ["[Rust in the kernel](https://news.ycombinator.com/item?id=7)"]
+
+
+def test_shows_the_risers_in_the_order_they_were_ranked():
+    latest = WeekOfWords(10_000, {"rust": 50, "mcp": 90}, {"rust": [], "mcp": []})
+
+    rows = this_week_on_hn(record_ending_with(latest)).rows
+
+    assert [row.riser.term for row in rows] == ["rust", "mcp"]

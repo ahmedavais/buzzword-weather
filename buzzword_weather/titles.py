@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 HN_PREFIX = re.compile(r"^\s*(show|ask|launch|tell)\s+hn\b\s*[:–—-]?", re.IGNORECASE)
 TAGS = re.compile(r"\[[^\]]*\]|\(\s*(\d{4}|yc [a-z]\d{2})\s*\)", re.IGNORECASE)
 TOKEN = re.compile(r"[a-z0-9][a-z0-9+#.'’-]*")
-NUMBER = re.compile(r"^v?[\d.,]+[km%]?$")
+NUMBER = re.compile(r"^(v?[\d.,]+(k|m|b|bn|x|%)?|cve-\d{4}-\d+)$")
 TRAILING = ".'’-"
 
 STOPWORDS = frozenset(

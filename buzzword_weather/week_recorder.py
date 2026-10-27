@@ -17,7 +17,8 @@ def words_of_week(stories: list[Story], weeks_before: list[WeekOfWords]) -> Week
         for term in terms_in(story.title, story.url):
             using[term].append(story)
     counted = WeekOfWords(len(stories), {term: len(found) for term, found in using.items() if len(found) >= LEAST_STORIES})
-    examples = {riser.term: [(story.id, story.title) for story in using[riser.term][-MOST_EXAMPLES:]] for riser in risers(counted, weeks_before) or []}
+    found = risers(counted, weeks_before, {term: {story.id for story in found} for term, found in using.items()}) or []
+    examples = {riser.term: [(story.id, story.title) for story in using[riser.term][-MOST_EXAMPLES:]] for riser in found}
     return WeekOfWords(counted.titles, counted.stories, examples)
 
 

@@ -33,28 +33,35 @@ The alternative, the official Firebase API one item at a time, would take 50,000
 count, the story count of every word or phrase at least 3 stories used, and that week's risers in rank order with up to
 3 example titles each. The risers are ranked when the week is recorded, against the 12 weeks before it, and stored, so
 the candidate rule can read the last 4 weeks' risers from a record that keeps only 13 weeks. Ranking those 4 weeks
-afresh would need 16. Example titles are kept only for risers, which keeps a week to tens of kilobytes. The app ranks
-the latest week again from the counts to show each riser's rate and rise. Ranking is deterministic, so it gets the
-same list.
+afresh would need 16. Ranking also needs which stories used each word (see "One row per story" below), which only the
+recorder has. The app shows the stored risers in their stored order and works out each one's rate and rise from the
+counts. Example titles are kept only for risers. A week takes about 64 KB, mostly counts, so the file stays under 1 MB.
+Changing the ranking rules means recording the weeks again: empty the file and run the Action.
 
   Alternative: store raw titles and count in the app. That gives a bigger file, repeats the work on every visit, and
   puts other people's titles in the repo in bulk.
 
 **Tokenizing.** `titles.py` lowercases, strips the "Show HN:"-style prefix and bracketed tags, splits on anything but
 letters, digits, `+`, `#` and `.` inside a word (so "c++", "c#" and "node.js" survive), and drops trailing dots. It
-removes stopwords and bare numbers, then forms bigrams from tokens that were next to each other in the title, both kept, with no punctuation between
+removes stopwords, bare numbers, money amounts ("$25b", "10k", "3x") and CVE ids, then forms bigrams from tokens that were next to each other in the title, both kept, with no punctuation between
 them. So "state of the art" gives no "state art". The stopwords
 are a small list in code, around 150 words, with no NLP dependency. The words of the story's domain (`github.blog` gives
 "github" and "blog") are removed from that title's tokens.
 
-**Phrase over parts.** When a bigram ranks and one of its words had 70% or more of its story count inside that bigram
-this week, that word is hidden from the ranking. This happens at ranking time, so the record stays plain counts.
+**One row per story.** A big news story lifts many words at once: in the week of 19 Oct 2026, eMudhra's compromised
+certificate authority lifted "emudhra", "emudhra intermediate", "compromised emudhra", "ca", "certificates" and
+"compromised". Going down the ranking, a word is skipped when 70% or more of the stories using it also use a word
+already shown. The recorder knows each word's stories while it counts the week, so it ranks then.
+
+  Alternatives tried on that real week: hiding a word inside a shown phrase, and a phrase containing a shown word,
+  using only counts. That removed the eMudhra phrases, but "ca", "certificates" and "compromised" took their rows.
 
 **Rate and rise.** rate = stories using the word / titles counted × 10,000. usual = mean rate over the 12 previous
 recorded weeks. A word missing from a week (under the 3-story floor) counts as 2 stories there, the most it could
 have had, so usual is an upper bound and the rise is never overstated. Recording every count instead would make the
-file about ten times bigger. rise = rate / usual. Words missing from all 12 weeks are "new front" and sort first by
-this week's rate. A word must have rise ≥ 2 to rank. Heat thresholds: ≥ 6 wildfire, ≥ 3 heatwave, else warm.
+file about ten times bigger. rise = rate / usual. Words missing from all 12 weeks are "new front", and they rank by the
+same rise as every other word. Putting them first filled the first real week with ten new fronts. A word must have
+rise ≥ 2 to rank. Heat thresholds: ≥ 6 wildfire, ≥ 3 heatwave, else warm.
 
 **Weeks are ISO weeks in UTC.** A `Week` value type, kin to `Month` and `Quarter` in `periods.py`, gives `starts_at`
 and `ends_at` as Unix seconds and an ISO label. The recording script records every finished week the record lacks, up

@@ -8,7 +8,7 @@
 ## 2. Fetching and recording
 
 - [x] 2.1 Add `HackerNews.stories(starts_at, ends_at)` with 6-hour slices that halve when `nbHits` exceeds what came back, plus a nullable that serves configured titles; verify with `hacker_news_test.py` using the null and an output tracker
-- [ ] 2.2 Add an integration test fetching one real 6-hour slice and asserting it returned every hit it reports; verify with `uv run pytest -m integration` from CI or locally
+- [x] 2.2 Add an integration test fetching one real 6-hour slice and asserting it returned every hit it reports; verify with `uv run pytest -m integration` from CI or locally
 - [x] 2.3 Add `weekly_words.py` and `week_recorder.py`: the record (from/to JSON, keep 13 weeks) and counting a week (drop words in fewer than 3 stories, store its risers with up to 3 examples); verify with `weekly_words_test.py`
 - [x] 2.4 Add `record_weekly_words.py` that records every missing finished week, paced like `record_almanac.py`; verify with a test against the null Hacker News that a rerun changes nothing
 
@@ -30,7 +30,7 @@
 
 ## 6. Action and docs
 
-- [ ] 6.1 Add `.github/workflows/record-weekly-words.yml`: Mondays 07:23 UTC plus manual runs; record, test and commit; then one PR per new candidate on `candidate/<slug>`, skipping slugs with any existing PR; verify with a manual dispatch on a branch
+- [x] 6.1 Add `.github/workflows/record-weekly-words.yml`: Mondays 07:23 UTC plus manual runs; record, test and commit; then one PR per new candidate on `candidate/<slug>`, skipping slugs with any existing PR; verify with a manual dispatch on a branch
 - [ ] 6.2 Commit an empty `weekly_words.json`, then backfill by dispatching the Action after merge; verify that the section appears on the live app
 - [x] 6.3 Update `README.md`, `CLAUDE.md` and `AGENTS.md` for the new Action, data file and era, and fix the outdated "app.py only renders" line; verify by reading the diff
 - [x] 6.4 Run `uv run ruff check .` and `uv run pytest` clean before opening the PR
