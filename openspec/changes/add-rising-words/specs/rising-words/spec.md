@@ -34,12 +34,17 @@ or story text. Each week's record SHALL include how many titles were counted.
 
 ### Requirement: Words and two-word phrases
 The system SHALL count single words and two-word phrases from each title, ignoring case and surrounding punctuation.
-A word or phrase SHALL count at most once per title. When a two-word phrase ranks, its single words SHALL NOT also be
-shown if most of their mentions that week were inside that phrase.
+A word or phrase SHALL count at most once per title. A word or phrase SHALL NOT be shown when 70% or more of the
+stories using it that week also use a word or phrase ranked above it, so one news story fills one row.
 
-#### Scenario: A product with a two-word name
-- **WHEN** "Claude Code" rises and nearly all mentions of "code" that week are in "Claude Code"
-- **THEN** the list shows "Claude Code" and not "code"
+#### Scenario: One story, many words
+- **WHEN** "emudhra" ranks first, and most titles using "emudhra intermediate", "certificates" and "compromised" also
+  use "emudhra"
+- **THEN** the list shows "emudhra" and none of the others
+
+#### Scenario: A word with a life of its own
+- **WHEN** "php2shell" ranks above "php", and most titles using "php" don't mention "php2shell"
+- **THEN** the list shows both
 
 #### Scenario: Repeated word in one title
 - **WHEN** a title says "Rust, Rust everywhere"
@@ -47,7 +52,7 @@ shown if most of their mentions that week were inside that phrase.
 
 ### Requirement: Noise is not counted
 The system SHALL ignore common English words; HN boilerplate such as "Show HN", "Ask HN", "Launch HN", "Tell HN",
-bracketed tags like "[pdf]" and "[video]", and bare numbers and years; and any word that is part of the domain the story
+bracketed tags like "[pdf]" and "[video]", bare numbers and years, money amounts like "$25B", and CVE ids; and any word that is part of the domain the story
 links to. A word or phrase SHALL rank only if at least 3 different stories used it that week.
 
 #### Scenario: Show HN
@@ -66,8 +71,8 @@ links to. A word or phrase SHALL rank only if at least 3 different stories used 
 For each word, the system SHALL compare this week's mentions per 10,000 titles with its average rate over the 12
 recorded weeks before. Weeks record only words that at least 3 stories used, so in a week where a word went
 unrecorded it SHALL count as 2 stories, the most it could have had. A rise is therefore never overstated. The 10
-words with the largest rise SHALL be shown, largest first. A word that went unrecorded in all 12 weeks before SHALL
-rank as new and be shown ahead of the others, ordered by mentions this week.
+words with the largest rise SHALL be shown, largest first. A word that went unrecorded in all 12 weeks before is new,
+and ranks among the others by its rise against those 2 stories a week, not ahead of them.
 
 #### Scenario: A word jumps
 - **WHEN** "crowdstrike" has 0.5 per 10,000 over the past 12 weeks and 40 per 10,000 this week

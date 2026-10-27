@@ -64,3 +64,13 @@ def test_asks_for_each_week_from_monday_to_monday():
     record_missing_weeks(almost_full, hacker_news, MONDAY, lambda week: None)
 
     assert slices.data[-1][1] == JUST_ENDED.ends_at
+
+
+def test_ranks_only_one_word_from_each_bunch_of_stories():
+    titles = [f"eMudhra intermediate certificates leak {number}" for number in range(6)] + ["Brotli decoder bug"] * 4
+    quiet = [WeekOfWords(1000, {})] * BASELINE_WEEKS
+
+    week = words_of_week(stories_titled(*titles), quiet)
+
+    assert len(week.risers) == 2
+    assert "brotli" in " ".join(week.risers)
