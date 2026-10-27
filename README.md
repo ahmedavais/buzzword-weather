@@ -6,7 +6,7 @@ the last 2 years, the last 10 years or all time since Hacker News began in 2007.
 
 Above the forecast, "This week on HN" names the words Hacker News story titles used far more than usual last week:
 up to 10 words and two-word phrases at twice their rate over the 12 weeks before or more, each with its heat (warm,
-heatwave, wildfire, or a new front for a word not seen in those 12 weeks) and a few of the titles that used it.
+heatwave, wildfire, or a new front for a word under 3 stories in each of those 12 weeks) and a few of the titles that used it.
 
 Every count is shown as mentions per 10,000 posts, because Hacker News posts about 13 times as much now as in 2008.
 In raw counts nearly every buzzword would look bigger today than it ever was.
@@ -105,7 +105,7 @@ Action runs them before it commits a new almanac:
 - `almanac_coverage_test.py`: every catalog buzzword has every period up to the almanac's latest month, every month
   at the edge of those periods has its item count, and that month is at most two months old
 - `weekly_words_test.py`: the weekly words reach the week before last, every week counted at least 2,000 titles, and
-  no common word or number ever ranked; skipped until the first weeks are recorded
+  no common word or number ever ranked; skipped while the record is empty, until the backfill is due on 16 Nov 2026
 
 ## How it's put together
 

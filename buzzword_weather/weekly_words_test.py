@@ -39,3 +39,10 @@ def test_finds_the_weeks_just_before_a_week_oldest_first():
 
     assert [words.titles for words in record.before(W44, count=1)] == [1]
     assert [words.titles for words in record.before(W44, count=12)] == [0, 1]
+
+
+def test_rates_a_term_too_rare_to_record_at_most_just_under_the_floor():
+    week = WeekOfWords(titles=8000, stories={"rust": 40})
+
+    assert week.highest_possible_rate("rust") == 50.0
+    assert week.highest_possible_rate("mcp") == 2.5

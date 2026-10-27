@@ -51,8 +51,10 @@ are a small list in code, around 150 words, with no NLP dependency. The words of
 this week, that word is hidden from the ranking. This happens at ranking time, so the record stays plain counts.
 
 **Rate and rise.** rate = stories using the word / titles counted × 10,000. usual = mean rate over the 12 previous
-recorded weeks, with missing words counted as 0. rise = rate / usual. Words with usual 0 are "new front" and sort
-first by this week's rate. A word must have rise ≥ 2 to rank. Heat thresholds: ≥ 6 wildfire, ≥ 3 heatwave, else warm.
+recorded weeks. A word missing from a week (under the 3-story floor) counts as 2 stories there, the most it could
+have had, so usual is an upper bound and the rise is never overstated. Recording every count instead would make the
+file about ten times bigger. rise = rate / usual. Words missing from all 12 weeks are "new front" and sort first by
+this week's rate. A word must have rise ≥ 2 to rank. Heat thresholds: ≥ 6 wildfire, ≥ 3 heatwave, else warm.
 
 **Weeks are ISO weeks in UTC.** A `Week` value type, kin to `Month` and `Quarter` in `periods.py`, gives `starts_at`
 and `ends_at` as Unix seconds and an ISO label. The recording script records every finished week the record lacks, up

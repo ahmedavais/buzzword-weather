@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from buzzword_weather.periods import Week
 from buzzword_weather.rising import BASELINE_WEEKS, Riser, risers
-from buzzword_weather.weekly_words import Example, WeeklyWords
+from buzzword_weather.weekly_words import LEAST_STORIES, Example, WeeklyWords
 
 
 @dataclass(frozen=True)
@@ -14,7 +14,7 @@ class Row:
     @property
     def headline(self) -> str:
         heat = self.riser.heat
-        rise = "never seen in the 12 weeks before" if self.riser.is_new else f"{_times(self.riser.rise)} usual"
+        rise = f"under {LEAST_STORIES} stories a week before" if self.riser.is_new else f"{_times(self.riser.rise)} usual"
         return f"{heat.emoji} **{self.riser.term}** · {heat.value} · {rise} · {self.riser.rate:.1f} per 10,000 titles"
 
 

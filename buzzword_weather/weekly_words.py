@@ -4,6 +4,7 @@ from dataclasses import dataclass, field, replace
 from buzzword_weather.periods import Week
 
 WEEKS_KEPT = 13
+LEAST_STORIES = 3
 
 Example = tuple[int, str]
 
@@ -15,7 +16,13 @@ class WeekOfWords:
     risers: dict[str, list[Example]] = field(default_factory=dict)
 
     def rate(self, term: str) -> float:
-        return self.stories.get(term, 0) / self.titles * 10_000 if self.titles else 0.0
+        return self._per_10000_titles(self.stories.get(term, 0))
+
+    def highest_possible_rate(self, term: str) -> float:
+        return self._per_10000_titles(self.stories.get(term, LEAST_STORIES - 1))
+
+    def _per_10000_titles(self, stories: int) -> float:
+        return stories / self.titles * 10_000 if self.titles else 0.0
 
 
 @dataclass(frozen=True)

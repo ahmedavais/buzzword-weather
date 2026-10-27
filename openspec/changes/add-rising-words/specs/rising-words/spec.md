@@ -64,19 +64,26 @@ links to. A word or phrase SHALL rank only if at least 3 different stories used 
 
 ### Requirement: Rise is measured against the 12 weeks before
 For each word, the system SHALL compare this week's mentions per 10,000 titles with its average rate over the 12
-recorded weeks before. The 10 words with the largest rise SHALL be shown, largest first. A word with no mentions in
-those 12 weeks SHALL rank as new and be shown ahead of the others, with ties broken by mentions this week.
+recorded weeks before. Weeks record only words that at least 3 stories used, so in a week where a word went
+unrecorded it SHALL count as 2 stories, the most it could have had. A rise is therefore never overstated. The 10
+words with the largest rise SHALL be shown, largest first. A word that went unrecorded in all 12 weeks before SHALL
+rank as new and be shown ahead of the others, ordered by mentions this week.
 
 #### Scenario: A word jumps
 - **WHEN** "crowdstrike" has 0.5 per 10,000 over the past 12 weeks and 40 per 10,000 this week
 - **THEN** it ranks with a rise of 80 times usual
+
+#### Scenario: A word that sat just under the floor
+- **WHEN** "mcp" was in 2 titles each week for 12 weeks and is in 3 this week, with the same number of titles
+- **THEN** it does not rank, because 3 stories is only 1.5 times the 2 it may have had each week
 
 #### Scenario: Fewer than 12 weeks of history
 - **WHEN** the record holds fewer than 13 weeks
 - **THEN** the section says the forecast is still gathering data and shows no ranking
 
 ### Requirement: Heat words
-Each ranked word SHALL get a heat word from its rise: "new front" when it was never mentioned in the 12 weeks before,
+Each ranked word SHALL get a heat word from its rise: "new front" when it was under 3 stories in each of the 12 weeks
+before (shown as "under 3 stories a week before" instead of a rise),
 "wildfire" at 6 times usual or more, "heatwave" at 3 times or more, and "warm" otherwise. Only words at 2 times usual
 or more SHALL rank, so fewer than 10 can be shown in a quiet week.
 

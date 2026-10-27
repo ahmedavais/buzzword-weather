@@ -38,15 +38,15 @@ def test_ranks_only_words_at_twice_their_usual_rate_or_more():
     assert terms(risers(this_week(rust=19, go=20), quiet_weeks(rust=10, go=10))) == ["go"]
 
 
-def test_ranks_a_never_seen_word_first_as_a_new_front():
-    found = risers(this_week(rust=90, mcp=3), quiet_weeks(rust=1))
+def test_ranks_a_word_too_rare_to_record_before_first_as_a_new_front():
+    found = risers(this_week(rust=90, mcp=5), quiet_weeks(rust=1))
 
     assert terms(found) == ["mcp", "rust"]
     assert found[0].heat is Heat.NEW_FRONT
 
 
 def test_orders_new_words_by_their_rate_this_week():
-    assert terms(risers(this_week(mcp=3, sora=9), quiet_weeks())) == ["sora", "mcp"]
+    assert terms(risers(this_week(mcp=5, sora=9), quiet_weeks())) == ["sora", "mcp"]
 
 
 def test_orders_the_others_by_how_far_they_rose():
@@ -80,3 +80,19 @@ def test_names_the_heat_by_how_far_a_word_rose():
     assert Riser("a", rate=6, usual=2).heat is Heat.HEATWAVE
     assert Riser("a", rate=5.9, usual=2).heat is Heat.WARM
     assert Riser("a", rate=4, usual=2).heat is Heat.WARM
+
+
+def test_counts_a_word_too_rare_to_record_as_just_under_the_floor():
+    assert risers(this_week(mcp=3), quiet_weeks()) == []
+    [mcp] = risers(this_week(mcp=4), quiet_weeks())
+
+    assert mcp.usual == 2
+    assert mcp.rise == 2
+
+
+def test_is_a_new_front_only_when_under_the_floor_in_every_week_before():
+    weeks_before = quiet_weeks()[1:] + [WeekOfWords(TITLES, {"mcp": 3})]
+
+    [mcp] = risers(this_week(mcp=40), weeks_before)
+
+    assert not mcp.is_new

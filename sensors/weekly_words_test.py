@@ -10,15 +10,20 @@ from buzzword_weather.weekly_words import WeeklyWords
 RECORD = WeeklyWords.from_json((Path(__file__).parent.parent / "weekly_words.json").read_text())
 MOST_WEEKS_BEHIND = 2
 FEWEST_TITLES = 2000
+BACKFILL_DUE = date(2026, 11, 16)
 
-pytestmark = pytest.mark.skipif(RECORD.latest() is None, reason="The weekly words are not backfilled yet")
+pytestmark = pytest.mark.skipif(
+    RECORD.latest() is None and date.today() < BACKFILL_DUE,
+    reason=f"The weekly words are due to be backfilled by {BACKFILL_DUE}",
+)
 
 
 def test_was_recorded_recently():
     expected = finished_weeks_before(date.today(), count=MOST_WEEKS_BEHIND)[0]
+    latest = RECORD.latest()
 
-    assert RECORD.latest().starts_at >= expected.starts_at, (
-        f"The weekly words stop at {RECORD.latest().label}; the weekly recording may have stopped"
+    assert latest is not None and latest.starts_at >= expected.starts_at, (
+        f"The weekly words stop at {latest.label if latest else 'nothing'}; the weekly recording may have stopped"
     )
 
 

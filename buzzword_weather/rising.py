@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from buzzword_weather.weekly_words import WeekOfWords
+from buzzword_weather.weekly_words import LEAST_STORIES, WeekOfWords
 
 BASELINE_WEEKS = 12
 MOST_RISERS = 10
-LEAST_STORIES = 3
 LEAST_RISE = 2.0
 PART_SHARE = 0.7
 
@@ -26,10 +25,7 @@ class Riser:
     term: str
     rate: float
     usual: float
-
-    @property
-    def is_new(self) -> bool:
-        return self.usual == 0
+    is_new: bool = False
 
     @property
     def rise(self) -> float:
@@ -58,7 +54,8 @@ def _counted(week: WeekOfWords) -> list[str]:
 
 
 def _riser(term: str, this_week: WeekOfWords, baseline: list[WeekOfWords]) -> Riser:
-    return Riser(term, this_week.rate(term), sum(week.rate(term) for week in baseline) / len(baseline))
+    usual = sum(week.highest_possible_rate(term) for week in baseline) / len(baseline)
+    return Riser(term, this_week.rate(term), usual, is_new=all(term not in week.stories for week in baseline))
 
 
 def _without_parts_of_phrases(rising: list[Riser], week: WeekOfWords) -> list[Riser]:

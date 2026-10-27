@@ -4,9 +4,9 @@ from datetime import date
 
 from buzzword_weather.hacker_news import HackerNews, Story
 from buzzword_weather.periods import Week, finished_weeks_before
-from buzzword_weather.rising import BASELINE_WEEKS, LEAST_STORIES, risers
+from buzzword_weather.rising import BASELINE_WEEKS, risers
 from buzzword_weather.titles import terms_in
-from buzzword_weather.weekly_words import WEEKS_KEPT, WeeklyWords, WeekOfWords
+from buzzword_weather.weekly_words import LEAST_STORIES, WEEKS_KEPT, WeeklyWords, WeekOfWords
 
 MOST_EXAMPLES = 3
 

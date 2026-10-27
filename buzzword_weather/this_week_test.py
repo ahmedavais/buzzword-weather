@@ -47,8 +47,10 @@ def test_headlines_a_row_with_heat_rise_and_rate():
     assert Row(Riser("rust", rate=5, usual=2), []).headline == "☀️ **rust** · warm · 2.5× usual · 5.0 per 10,000 titles"
 
 
-def test_headlines_a_new_word_without_a_rise():
-    assert "never seen in the 12 weeks before" in Row(Riser("mcp", rate=3, usual=0), []).headline
+def test_headlines_a_new_word_by_how_rare_it_was():
+    headline = Row(Riser("mcp", rate=9, usual=2.5, is_new=True), []).headline
+
+    assert headline == "🌀 **mcp** · new front · under 3 stories a week before · 9.0 per 10,000 titles"
 
 
 def test_links_each_example_title_to_its_hacker_news_discussion():
