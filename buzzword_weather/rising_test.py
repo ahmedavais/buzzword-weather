@@ -118,13 +118,12 @@ def test_is_a_new_front_only_when_under_the_floor_in_every_week_before():
     assert not mcp.is_new
 
 
-def test_fills_the_top_10_with_words_from_different_stories():
-    many = {f"word{number}": 10 for number in range(10)}
-    week = WeekOfWords(TITLES, {**many, "agent": 80, "agent skills": 60})
+def test_fills_the_slot_of_a_skipped_word_with_the_next_one_down():
+    eight = {f"word{number}": 10 for number in range(8)}
+    week = this_week(**eight, agent_skills=60, agent=80, filler=6)
     stories = {**separate_stories(week), "agent skills": set(range(60)), "agent": set(range(80))}
+    weeks_before = quiet_weeks(**dict.fromkeys(eight, 2), agent_skills=5, agent=10, filler=2)
 
-    found = terms(risers(week, quiet_weeks(**dict.fromkeys(many, 2), agent=10, agent_skills=28), stories))
+    found = terms(risers(week, weeks_before, stories))
 
-    assert len(found) == 10
-    assert "agent" in found
-    assert "agent skills" not in found
+    assert found == ["agent skills", *eight, "filler"]
