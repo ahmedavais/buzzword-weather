@@ -126,3 +126,9 @@ def test_watches_no_word_whose_nomination_is_still_open_after_its_streak_slips()
     record = record_of(["mcp"], ["mcp"], ["mcp"], []).with_proposed({"mcp"})
 
     assert watch_list(record, catalog_phrases=set()) == []
+
+
+def test_watches_only_the_risers_the_page_shows():
+    shown = [f"word{number}" for number in range(7)]
+
+    assert "MCP" not in watch_list(record_of([], shown + ["mcp"], shown + ["mcp"]), catalog_phrases=set())

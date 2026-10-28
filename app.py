@@ -74,7 +74,7 @@ def this_week() -> ThisWeek | None:
     try:
         return this_week_from(WEEKLY_WORDS.read_text())
     except Exception:
-        logging.getLogger(__name__).exception("Couldn't read the weekly words; leaving out This week on HN")
+        logging.getLogger(__name__).exception("Couldn't read the weekly words; leaving out this week's gusts")
         return None
 
 
