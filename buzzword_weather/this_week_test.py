@@ -16,11 +16,11 @@ def record_ending_with(latest: WeekOfWords, weeks_before: int = BASELINE_WEEKS) 
 
 
 def test_shows_nothing_without_a_recorded_week():
-    assert this_week_on_hn(WeeklyWords()) is None
+    assert this_week_on_hn(WeeklyWords(), catalog_phrases=set()) is None
 
 
 def test_is_still_gathering_without_12_weeks_before_the_latest():
-    this_week = this_week_on_hn(record_ending_with(WeekOfWords(10_000, {"rust": 50}), weeks_before=11))
+    this_week = this_week_on_hn(record_ending_with(WeekOfWords(10_000, {"rust": 50}), weeks_before=11), catalog_phrases=set())
 
     assert this_week.week == LATEST
     assert this_week.gathering
@@ -29,14 +29,14 @@ def test_is_still_gathering_without_12_weeks_before_the_latest():
 def test_shows_the_latest_week_risers_with_their_example_titles():
     latest = WeekOfWords(10_000, {"rust": 50}, {"rust": [(7, "Rust in the kernel")]})
 
-    [row] = this_week_on_hn(record_ending_with(latest)).rows
+    [row] = this_week_on_hn(record_ending_with(latest), catalog_phrases=set()).rows
 
     assert row.riser.term == "rust"
     assert row.examples == [(7, "Rust in the kernel")]
 
 
 def test_shows_a_quiet_week_as_no_rows():
-    this_week = this_week_on_hn(record_ending_with(WeekOfWords(10_000, {"rust": 5})))
+    this_week = this_week_on_hn(record_ending_with(WeekOfWords(10_000, {"rust": 5})), catalog_phrases=set())
 
     assert this_week.rows == []
     assert not this_week.gathering
@@ -62,7 +62,7 @@ def test_links_each_example_title_to_its_hacker_news_discussion():
 def test_shows_the_risers_in_the_order_they_were_ranked():
     latest = WeekOfWords(10_000, {"rust": 50, "mcp": 90}, {"rust": [], "mcp": []})
 
-    rows = this_week_on_hn(record_ending_with(latest)).rows
+    rows = this_week_on_hn(record_ending_with(latest), catalog_phrases=set()).rows
 
     assert [row.riser.term for row in rows] == ["rust", "mcp"]
 
@@ -71,7 +71,7 @@ def test_shows_at_most_7_risers_from_a_week_recorded_with_more():
     risers = {f"word{number}": [] for number in range(10)}
     latest = WeekOfWords(10_000, dict.fromkeys(risers, 50), risers)
 
-    assert len(this_week_on_hn(record_ending_with(latest)).rows) == 7
+    assert len(this_week_on_hn(record_ending_with(latest), catalog_phrases=set()).rows) == 7
 
 
 def test_names_the_words_one_rising_week_from_the_forecast():

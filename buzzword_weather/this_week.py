@@ -34,7 +34,7 @@ class ThisWeek:
         return self.rows is None
 
 
-def this_week_on_hn(record: WeeklyWords, catalog_phrases: set[str] | None = None) -> ThisWeek | None:
+def this_week_on_hn(record: WeeklyWords, catalog_phrases: set[str]) -> ThisWeek | None:
     latest = record.latest()
     if latest is None:
         return None
@@ -44,7 +44,7 @@ def this_week_on_hn(record: WeeklyWords, catalog_phrases: set[str] | None = None
         return ThisWeek(latest, None)
     shown = list(words.risers.items())[:MOST_RISERS]
     rows = [Row(measured(term, words, weeks_before), examples) for term, examples in shown]
-    return ThisWeek(latest, rows, watch_list(record, catalog_phrases or set()))
+    return ThisWeek(latest, rows, watch_list(record, catalog_phrases))
 
 
 def _times(rise: float) -> str:
