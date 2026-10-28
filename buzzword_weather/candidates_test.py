@@ -107,3 +107,9 @@ def test_watches_no_word_already_proposed_or_in_the_catalog():
     record = record_of(["mcp"], ["mcp"], ["mcp", "vibe coding"], ["vibe coding"])
 
     assert watch_list(record, catalog_phrases={"vibe coding"}) == []
+
+
+def test_counts_only_the_risers_the_page_shows():
+    unseen = [f"word{number}" for number in range(7)] + ["mcp"]
+
+    assert "mcp" not in phrases(candidates(record_of(unseen, unseen, unseen), catalog_phrases=set()))

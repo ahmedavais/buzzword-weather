@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 from buzzword_weather.periods import Week
+from buzzword_weather.rising import MOST_RISERS
 from buzzword_weather.story_link import story_link
 from buzzword_weather.weekly_words import Example, WeeklyWords
 
@@ -58,7 +59,7 @@ def watch_list(record: WeeklyWords, catalog_phrases: set[str]) -> list[str]:
 def _weeks_risen(record: WeeklyWords, weeks_back: int) -> dict[str, list[Week]]:
     risen: dict[str, list[Week]] = {}
     for week in record.recorded_weeks()[-weeks_back:]:
-        for phrase in record.weeks[week].risers:
+        for phrase in list(record.weeks[week].risers)[:MOST_RISERS]:
             risen.setdefault(phrase, []).append(week)
     return risen
 
