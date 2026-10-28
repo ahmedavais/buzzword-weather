@@ -31,7 +31,7 @@
 ## 6. Action and docs
 
 - [x] 6.1 Add `.github/workflows/record-weekly-words.yml`: Mondays 07:23 UTC plus manual runs; record, test and commit; then one PR per new candidate on `candidate/<slug>`, skipping slugs with any existing PR; verify with a manual dispatch on a branch
-- [ ] 6.2 Commit an empty `weekly_words.json`, then backfill by dispatching the Action after merge; verify that the section appears on the live app
+- [x] 6.2 Commit an empty `weekly_words.json`, then backfill by dispatching the Action after merge; verify that the section appears on the live app
 - [x] 6.3 Update `README.md`, `CLAUDE.md` and `AGENTS.md` for the new Action, data file and era, and fix the outdated "app.py only renders" line; verify by reading the diff
 - [x] 6.4 Run `uv run ruff check .` and `uv run pytest` clean before opening the PR
 
