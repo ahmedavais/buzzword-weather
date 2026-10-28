@@ -1,6 +1,6 @@
 from buzzword_weather.periods import Week
 from buzzword_weather.rising import BASELINE_WEEKS, Riser
-from buzzword_weather.this_week import Row, this_week_on_hn
+from buzzword_weather.this_week import Row, ThisWeek, this_week_on_hn
 from buzzword_weather.weekly_words import WeeklyWords, WeekOfWords
 
 LATEST = Week(2026, 44)
@@ -80,3 +80,17 @@ def test_names_the_words_one_rising_week_from_the_forecast():
     record = record.with_week(earlier, WeekOfWords(10_000, {"mcp": 50, "rust": 50}, {"mcp": [], "rust": []}))
 
     assert this_week_on_hn(record, catalog_phrases={"rust"}).watching == ["mcp"]
+
+
+def test_names_one_watched_word_in_the_singular():
+    line = ThisWeek(LATEST, [], ["MCP"]).watch_line
+
+    assert line == "**On the watch list:** MCP. One more rising week and it's nominated for the forecast."
+
+
+def test_names_several_watched_words_in_the_plural():
+    assert ThisWeek(LATEST, [], ["MCP", "Sora"]).watch_line.endswith("Sora. One more rising week and they're nominated for the forecast.")
+
+
+def test_says_how_a_word_is_nominated_when_none_is_close():
+    assert ThisWeek(LATEST, [], []).watch_line.startswith("A word that rises three weeks out of four is nominated")

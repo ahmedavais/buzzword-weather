@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from buzzword_weather.candidates import watch_list
 from buzzword_weather.periods import Week
 from buzzword_weather.rising import BASELINE_WEEKS, MOST_RISERS, Riser, measured
-from buzzword_weather.story_link import story_link
+from buzzword_weather.story_link import inert, story_link
 from buzzword_weather.weekly_words import LEAST_STORIES, Example, WeeklyWords
 
 
@@ -32,6 +32,14 @@ class ThisWeek:
     @property
     def gathering(self) -> bool:
         return self.rows is None
+
+    @property
+    def watch_line(self) -> str:
+        if not self.watching:
+            return "A word that rises three weeks out of four is nominated for the forecast. None is that close yet."
+        names = ", ".join(inert(name) for name in self.watching)
+        nominated = "it's" if len(self.watching) == 1 else "they're"
+        return f"**On the watch list:** {names}. One more rising week and {nominated} nominated for the forecast."
 
 
 def this_week_on_hn(record: WeeklyWords, catalog_phrases: set[str]) -> ThisWeek | None:

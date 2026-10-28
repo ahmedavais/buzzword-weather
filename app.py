@@ -41,7 +41,6 @@ from buzzword_weather.forecast_card import forecast_card
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
-from buzzword_weather.story_link import inert
 from buzzword_weather.this_week import ThisWeek, this_week_on_hn
 from buzzword_weather.weekly_words import WeeklyWords
 
@@ -91,14 +90,14 @@ def show_this_week(this_week: ThisWeek) -> None:
             for link in row.example_links:
                 st.markdown(f"- {link}")
     if this_week.rows is not None:
-        show_watch_list(this_week.watching)
+        show_watch_line(this_week)
 
 
-def show_watch_list(watching: list[str]) -> None:
-    if watching:
-        st.markdown(f"**On the watch list:** {', '.join(inert(name) for name in watching)}. One more rising week and they're nominated for the forecast.")
+def show_watch_line(this_week: ThisWeek) -> None:
+    if this_week.watching:
+        st.markdown(this_week.watch_line)
     else:
-        st.caption("A word that rises three weeks out of four is nominated for the forecast. None is that close yet.")
+        st.caption(this_week.watch_line)
 
 
 def starting_buzzwords() -> list[str]:
