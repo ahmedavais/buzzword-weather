@@ -3,7 +3,7 @@
 ## Why
 
 The app tells the story of buzzwords we already know about. It can't show what Hacker News is starting to talk about this
-week, which is where new buzzwords come from. Ten rising words a week give visitors a reason to come back and give the
+week, which is where new buzzwords come from. Seven rising words a week give visitors a reason to come back and give the
 catalog a steady source of new entries. Their weather comes later, once they've earned it.
 
 ## What Changes
