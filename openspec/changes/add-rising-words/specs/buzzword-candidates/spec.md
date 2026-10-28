@@ -45,13 +45,18 @@ second pull request for a candidate that already has one open or closed.
 ### Requirement: The watch list
 Below this week's gusts, the app SHALL name the words not in the catalog that rose in 2 of the last 3 recorded weeks,
 so one more rising week would nominate them, and say so. When there are none, it SHALL say how a word is nominated
-and that none is that close yet. Words already proposed, and words whose pull request Ahmed closed without merging,
-SHALL NOT be on the watch list. The weekly recording SHALL remember the closed candidates in the weekly record, so the
+and that none is that close yet. A word that already has a candidate pull request, open or closed, SHALL NOT be on
+the watch list. The weekly recording SHALL remember every candidate pull request it finds in the weekly record, so the
 app knows them without asking GitHub.
 
 #### Scenario: A word Ahmed passed over
 - **WHEN** Ahmed closed the pull request for "rust", and "rust" rose in 2 of the last 3 weeks
 - **THEN** the watch list leaves out "rust", because no nomination will come
+
+#### Scenario: A nomination still open
+- **WHEN** "mcp" was proposed after rising in weeks 1, 2 and 3, its pull request is still open, and it didn't rise in
+  week 4
+- **THEN** the watch list leaves out "mcp", because it is already nominated
 
 #### Scenario: One week away
 - **WHEN** "mcp" rose in 2 of the last 3 weeks and is not in the catalog

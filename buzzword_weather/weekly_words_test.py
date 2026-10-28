@@ -48,7 +48,7 @@ def test_rates_a_term_too_rare_to_record_at_most_just_under_the_floor():
     assert week.highest_possible_rate("mcp") == 2.5
 
 
-def test_remembers_the_candidates_passed_over_across_weeks():
-    record = WeeklyWords().with_passed_over({"mcp"}).with_week(W44, WeekOfWords(titles=1, stories={}))
+def test_remembers_the_candidates_proposed_across_weeks():
+    record = WeeklyWords().with_proposed({"mcp"}).with_week(W44, WeekOfWords(titles=1, stories={}))
 
-    assert WeeklyWords.from_json(record.to_json()).passed_over == {"mcp"}
+    assert WeeklyWords.from_json(record.to_json()).proposed == {"mcp"}

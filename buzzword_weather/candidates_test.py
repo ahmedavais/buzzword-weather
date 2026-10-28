@@ -115,8 +115,14 @@ def test_counts_only_the_risers_the_page_shows():
     assert "mcp" not in phrases(candidates(record_of(unseen, unseen, unseen), catalog_phrases=set()))
 
 
-def test_never_proposes_or_watches_a_word_passed_over():
-    record = record_of(["mcp"], ["mcp", "sora"], ["mcp", "sora"]).with_passed_over({"mcp", "sora"})
+def test_never_proposes_or_watches_a_word_proposed():
+    record = record_of(["mcp"], ["mcp", "sora"], ["mcp", "sora"]).with_proposed({"mcp", "sora"})
 
     assert candidates(record, catalog_phrases=set()) == []
+    assert watch_list(record, catalog_phrases=set()) == []
+
+
+def test_watches_no_word_whose_nomination_is_still_open_after_its_streak_slips():
+    record = record_of(["mcp"], ["mcp"], ["mcp"], []).with_proposed({"mcp"})
+
     assert watch_list(record, catalog_phrases=set()) == []

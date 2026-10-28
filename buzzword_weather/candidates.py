@@ -42,18 +42,18 @@ def candidates(record: WeeklyWords, catalog_phrases: set[str]) -> list[Candidate
     return [
         _candidate(phrase, weeks, record)
         for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT).items()
-        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases and slug_of(phrase) not in record.passed_over
+        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases and slug_of(phrase) not in record.proposed
     ]
 
 
 def watch_list(record: WeeklyWords, catalog_phrases: set[str]) -> list[str]:
-    proposed = {candidate.phrase for candidate in candidates(record, catalog_phrases)}
+    due = {candidate.phrase for candidate in candidates(record, catalog_phrases)}
     return [
         _candidate(phrase, weeks, record).name
         for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT - 1).items()
         if len(weeks) == LEAST_WEEKS_RISEN - 1
-        and phrase not in catalog_phrases | proposed
-        and slug_of(phrase) not in record.passed_over
+        and phrase not in catalog_phrases | due
+        and slug_of(phrase) not in record.proposed
     ]
 
 
