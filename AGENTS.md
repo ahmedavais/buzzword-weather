@@ -19,6 +19,13 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
 - Adversarial review: `.github/workflows/adversarial-review.yml` has Claude Code review every pull request with the
   shared workflow and brief from [karkhana](https://github.com/ahmedavais/karkhana). Comments only. The reviewer takes
   this repo's checks and conventions from this file, so keep them current here.
+- Dependency updates: `renovate.json` follows the shared Renovate policy in
+  [karkhana](https://github.com/ahmedavais/karkhana), for `pyproject.toml` and `uv.lock`, `.python-version` and the
+  Actions. Patch and minor updates arrive as one pull request on Mondays and merge themselves once every check passes,
+  which deploys them. The lock file refresh and any major arrive the same day and stay open, assigned to Ahmed. When
+  CI fails on one, the `failed-update-alarm` job in `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists
+  every other pull request job, so add a new job there too. The adversarial review skips a Renovate pull request only
+  when it changes nothing but dependency manifests and lock files.
 - The refresh Action runs the tests before it commits a new almanac. The weekly words Action runs the integration
   tests and then the tests before it commits `weekly_words.json`, and before each candidate pull request it opens.
   Keep-awake visits the app every 6 hours.
