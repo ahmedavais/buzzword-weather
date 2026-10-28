@@ -26,6 +26,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -o pipefail
           gh pr list --state closed --limit 1000 --json headRefName,mergedAt \
             --jq '.[] | select(.mergedAt == null) | .headRefName | select(startswith("candidate/")) | ltrimstr("candidate/")' \
             | xargs -r uv run python pass_over.py
