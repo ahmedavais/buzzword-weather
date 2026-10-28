@@ -35,6 +35,12 @@
 - [x] 6.3 Update `README.md`, `CLAUDE.md` and `AGENTS.md` for the new Action, data file and era, and fix the outdated "app.py only renders" line; verify by reading the diff
 - [x] 6.4 Run `uv run ruff check .` and `uv run pytest` clean before opening the PR
 
+## 7. Story
+
+- [x] 7.1 Show at most 7 risers, also from weeks recorded with 10; verify with `rising_test.py` and `this_week_test.py`
+- [x] 7.2 Open the page with one sentence that tells the arc, title the sections "This week's gusts" and "The long-range forecast", and put the forecast title above the picker; verify by running the app on the real record and reading it top to bottom
+- [x] 7.3 Add the watch list (`candidates.watch_list`) under the gusts, escaped like titles; verify with `candidates_test.py`, `this_week_test.py` and `story_link_test.py`
+
 ## Workflow follow-up
 
 - Archive the change with `/opsx:archive` after it ships, which turns the delta specs into `openspec/specs/`.

@@ -1,4 +1,4 @@
-from buzzword_weather.story_link import WORD_JOINER, story_link
+from buzzword_weather.story_link import WORD_JOINER, inert, story_link
 
 
 def test_links_a_title_to_its_hacker_news_discussion():
@@ -15,3 +15,7 @@ def test_never_mentions_a_person_or_links_an_issue():
 
     assert f"@{WORD_JOINER}someuser" in link
     assert f"\\#{WORD_JOINER}42" in link
+
+
+def test_makes_any_text_inert_markdown():
+    assert inert("*MCP* @team") == f"\\*MCP\\* @{WORD_JOINER}team"

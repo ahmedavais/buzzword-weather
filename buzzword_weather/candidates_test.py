@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from buzzword_weather.candidates import Candidate, candidates, with_candidate
+from buzzword_weather.candidates import Candidate, candidates, watch_list, with_candidate
 from buzzword_weather.periods import Week
 from buzzword_weather.weekly_words import WeeklyWords, WeekOfWords
 
@@ -91,3 +91,44 @@ def test_never_mentions_anyone_named_in_a_title():
     [mcp] = candidates(record, catalog_phrases=set())
 
     assert "@someuser" not in mcp.pull_request_body
+
+
+def test_watches_a_word_one_rising_week_from_being_proposed():
+    record = record_of(["rust"], [], ["mcp"], ["mcp"])
+
+    assert watch_list(record, catalog_phrases=set()) == ["MCP"]
+
+
+def test_watches_no_word_that_next_week_cannot_lift_to_3_of_4():
+    assert watch_list(record_of(["mcp"], ["mcp"], [], []), catalog_phrases=set()) == []
+
+
+def test_watches_no_word_due_for_a_proposal_or_in_the_catalog():
+    record = record_of(["mcp"], ["mcp"], ["mcp", "vibe coding"], ["vibe coding"])
+
+    assert watch_list(record, catalog_phrases={"vibe coding"}) == []
+
+
+def test_counts_only_the_risers_the_page_shows():
+    unseen = [f"word{number}" for number in range(7)] + ["mcp"]
+
+    assert "mcp" not in phrases(candidates(record_of(unseen, unseen, unseen), catalog_phrases=set()))
+
+
+def test_never_proposes_or_watches_a_word_proposed():
+    record = record_of(["mcp"], ["mcp", "sora"], ["mcp", "sora"]).with_proposed({"mcp", "sora"})
+
+    assert candidates(record, catalog_phrases=set()) == []
+    assert watch_list(record, catalog_phrases=set()) == []
+
+
+def test_watches_no_word_whose_nomination_is_still_open_after_its_streak_slips():
+    record = record_of(["mcp"], ["mcp"], ["mcp"], []).with_proposed({"mcp"})
+
+    assert watch_list(record, catalog_phrases=set()) == []
+
+
+def test_watches_only_the_risers_the_page_shows():
+    shown = [f"word{number}" for number in range(7)]
+
+    assert "MCP" not in watch_list(record_of([], shown + ["mcp"], shown + ["mcp"]), catalog_phrases=set())

@@ -28,15 +28,17 @@ class WeekOfWords:
 @dataclass(frozen=True)
 class WeeklyWords:
     weeks: dict[Week, WeekOfWords] = field(default_factory=dict)
+    proposed: frozenset[str] = frozenset()
 
     @staticmethod
     def from_json(text: str) -> "WeeklyWords":
-        stored = json.loads(text).get("weeks", {})
-        return WeeklyWords({Week.from_key(key): _week_from(entry) for key, entry in stored.items()})
+        stored = json.loads(text)
+        weeks = {Week.from_key(key): _week_from(entry) for key, entry in stored.get("weeks", {}).items()}
+        return WeeklyWords(weeks, frozenset(stored.get("proposed", [])))
 
     def to_json(self) -> str:
         weeks = {week.key: _entry_of(self.weeks[week]) for week in self.recorded_weeks()}
-        return json.dumps({"weeks": weeks}, indent=1, ensure_ascii=False) + "\n"
+        return json.dumps({"proposed": sorted(self.proposed), "weeks": weeks}, indent=1, ensure_ascii=False) + "\n"
 
     def recorded_weeks(self) -> list[Week]:
         return sorted(self.weeks, key=lambda week: week.starts_at)
@@ -47,6 +49,9 @@ class WeeklyWords:
 
     def before(self, week: Week, count: int) -> list[WeekOfWords]:
         return [self.weeks[earlier] for earlier in self.recorded_weeks() if earlier.starts_at < week.starts_at][-count:]
+
+    def with_proposed(self, slugs: set[str]) -> "WeeklyWords":
+        return replace(self, proposed=self.proposed | slugs)
 
     def with_week(self, week: Week, words: WeekOfWords) -> "WeeklyWords":
         kept = sorted({**self.weeks, week: words}.items(), key=lambda item: item[0].starts_at)[-WEEKS_KEPT:]

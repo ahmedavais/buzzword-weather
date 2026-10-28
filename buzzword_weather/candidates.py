@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import dataclass
 
 from buzzword_weather.periods import Week
+from buzzword_weather.rising import MOST_RISERS
 from buzzword_weather.story_link import story_link
 from buzzword_weather.weekly_words import Example, WeeklyWords
 
@@ -23,8 +24,7 @@ class Candidate:
 
     @property
     def slug(self) -> str:
-        spelled = "".join(SPELLED_OUT.get(character, character) for character in self.phrase)
-        return re.sub(r"[^a-z0-9]+", "-", spelled).strip("-")
+        return slug_of(self.phrase)
 
     @property
     def pull_request_body(self) -> str:
@@ -39,16 +39,35 @@ class Candidate:
 
 
 def candidates(record: WeeklyWords, catalog_phrases: set[str]) -> list[Candidate]:
-    looked_at = record.recorded_weeks()[-WEEKS_LOOKED_AT:]
-    risen: dict[str, list[Week]] = {}
-    for week in looked_at:
-        for phrase in record.weeks[week].risers:
-            risen.setdefault(phrase, []).append(week)
     return [
         _candidate(phrase, weeks, record)
-        for phrase, weeks in risen.items()
-        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases
+        for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT).items()
+        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases and slug_of(phrase) not in record.proposed
     ]
+
+
+def watch_list(record: WeeklyWords, catalog_phrases: set[str]) -> list[str]:
+    due = {candidate.phrase for candidate in candidates(record, catalog_phrases)}
+    return [
+        _candidate(phrase, weeks, record).name
+        for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT - 1).items()
+        if len(weeks) == LEAST_WEEKS_RISEN - 1
+        and phrase not in catalog_phrases | due
+        and slug_of(phrase) not in record.proposed
+    ]
+
+
+def slug_of(phrase: str) -> str:
+    spelled = "".join(SPELLED_OUT.get(character, character) for character in phrase)
+    return re.sub(r"[^a-z0-9]+", "-", spelled).strip("-")
+
+
+def _weeks_risen(record: WeeklyWords, weeks_back: int) -> dict[str, list[Week]]:
+    risen: dict[str, list[Week]] = {}
+    for week in record.recorded_weeks()[-weeks_back:]:
+        for phrase in list(record.weeks[week].risers)[:MOST_RISERS]:
+            risen.setdefault(phrase, []).append(week)
+    return risen
 
 
 def with_candidate(catalog_source: str, candidate: Candidate) -> str:

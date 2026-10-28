@@ -4,9 +4,11 @@ Engineering buzzwords and their weather: a current forecast for each selected te
 the last 2 years, the last 10 years or all time since Hacker News began in 2007. The forecast reads each term's last
 24 months as calm, a front moving in, a storm passing, clearing skies and more.
 
-Above the forecast, "This week on HN" names the words Hacker News story titles used far more than usual last week:
-up to 10 words and two-word phrases at twice their rate over the 12 weeks before or more, each with its heat (warm,
+The page tells one story: every buzzword starts as a word Hacker News suddenly can't stop saying, and the ones that
+keep blowing in get a forecast. Above the forecast, "This week's gusts" names the words Hacker News story titles used
+far more than usual last week: up to 7 words and two-word phrases at twice their rate over the 12 weeks before or more, each with its heat (warm,
 heatwave, wildfire, or a new front for a word under 3 stories in each of those 12 weeks) and a few of the titles that used it.
+Below them, a watch list names the words one rising week away from being nominated for the forecast.
 
 Every count is shown as mentions per 10,000 posts, because Hacker News posts about 13 times as much now as in 2008.
 In raw counts nearly every buzzword would look bigger today than it ever was.
@@ -53,9 +55,10 @@ uv run python record_weekly_words.py
 
 A GitHub Action (`.github/workflows/record-weekly-words.yml`) does this every Monday: it checks the real Hacker News
 search with the integration tests, records, runs the tests and commits the file, which redeploys the app. Then it
-looks for words that rose in at least 3 of the last 4 weeks and aren't in the catalog, and opens a pull request for
-each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word whose pull
-request was closed is never proposed again. GitHub doesn't run CI on pull requests the Action opens, so the Action
+looks for words among the 7 shown in at least 3 of the last 4 weeks that aren't in the catalog, and opens a pull request for
+each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word is proposed
+once: each run records every candidate pull request already opened in `weekly_words.json` (`remember_proposals.py`),
+so a word whose pull request is open or was closed is never proposed again, nor named on the watch list. GitHub doesn't run CI on pull requests the Action opens, so the Action
 runs the tests itself before opening one; push a commit to a candidate's branch to run CI on it.
 
 ## Lint it
@@ -132,7 +135,7 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/titles.py`: the words and two-word phrases of a story title, without the noise
 - `buzzword_weather/weekly_words.py`, `week_recorder.py`: the weekly record, and filling in the missing weeks
 - `buzzword_weather/rising.py`: a week's risers against the 12 weeks before, and their heat
-- `buzzword_weather/this_week.py`: the rows of "This week on HN"
+- `buzzword_weather/this_week.py`: the rows of "This week's gusts" and the watch list
 - `buzzword_weather/story_link.py`: a link to a story's discussion, with its title escaped so it can't break the link,
   mention anyone on GitHub or link an issue
 - `buzzword_weather/candidates.py`: words that keep rising, proposed for the catalog

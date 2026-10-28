@@ -22,6 +22,14 @@ jobs:
       - name: Check the Hacker News search still answers as expected
         run: uv run pytest -m integration
       - run: uv run python record_weekly_words.py
+      - name: Remember every candidate already proposed, open, closed or merged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -o pipefail
+          gh pr list --state all --limit 1000 --json headRefName \
+            --jq '.[].headRefName | select(startswith("candidate/")) | ltrimstr("candidate/")' \
+            | xargs -r uv run python remember_proposals.py
       - name: Check the weekly words before committing them
         run: uv run pytest
       - name: Commit the weekly words if they changed

@@ -88,7 +88,7 @@ test run stands in for CI. The repository must allow Actions to create pull requ
   recording, so a changed API stops the run instead of committing a thin week.
 - [Weekly commits to main redeploy the app every Monday] → The same deploy-reload path the almanac uses, already
   proven. The commit happens only after the tests pass.
-- [Risers dominated by news, not tech, such as elections or deaths] → Accepted: the section is "This week on HN", not
+- [Risers dominated by news, not tech, such as elections or deaths] → Accepted: the section is "This week's gusts", not
   "this week's buzzwords". Candidate PRs are Ahmed's filter.
 - [Stopword list misses produce junk risers, or the fetch quietly loses stories] → A sensor in `sensors/` fails when
   a stopword or number ever ranks, a week counted fewer than 2,000 titles, or the record stops more than 2 weeks back.
