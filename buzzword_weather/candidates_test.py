@@ -103,7 +103,7 @@ def test_watches_no_word_that_next_week_cannot_lift_to_3_of_4():
     assert watch_list(record_of(["mcp"], ["mcp"], [], []), catalog_phrases=set()) == []
 
 
-def test_watches_no_word_already_proposed_or_in_the_catalog():
+def test_watches_no_word_due_for_a_proposal_or_in_the_catalog():
     record = record_of(["mcp"], ["mcp"], ["mcp", "vibe coding"], ["vibe coding"])
 
     assert watch_list(record, catalog_phrases={"vibe coding"}) == []
