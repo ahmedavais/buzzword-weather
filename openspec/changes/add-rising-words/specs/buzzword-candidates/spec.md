@@ -8,8 +8,14 @@ Ahmed stays its editor.
 ## ADDED Requirements
 
 ### Requirement: A word that keeps rising becomes a candidate
-After each weekly recording, a word or phrase SHALL become a candidate when it ranked among the risers in at least 3 of
-the last 4 recorded weeks and no catalog buzzword already has it as its search phrase.
+After each weekly recording, a word or phrase SHALL become a candidate when it was among the 7 risers the page shows in
+at least 3 of the last 4 recorded weeks and no catalog buzzword already has it as its search phrase. A word ranked
+below the 7 shown, including in weeks recorded before the cap of 7, SHALL NOT count, so only words a visitor saw can be
+nominated.
+
+#### Scenario: Ranked but not shown
+- **WHEN** "mcp" ranked 8th in 3 of the last 4 weeks
+- **THEN** it is not a candidate
 
 #### Scenario: Rising for three weeks
 - **WHEN** "mcp" ranked in weeks 1, 2 and 4 of the last 4 and is not in the catalog
