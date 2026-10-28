@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from buzzword_weather.candidates import Candidate, candidates, with_candidate
+from buzzword_weather.candidates import Candidate, candidates, watch_list, with_candidate
 from buzzword_weather.periods import Week
 from buzzword_weather.weekly_words import WeeklyWords, WeekOfWords
 
@@ -91,3 +91,19 @@ def test_never_mentions_anyone_named_in_a_title():
     [mcp] = candidates(record, catalog_phrases=set())
 
     assert "@someuser" not in mcp.pull_request_body
+
+
+def test_watches_a_word_one_rising_week_from_being_proposed():
+    record = record_of(["rust"], [], ["mcp"], ["mcp"])
+
+    assert watch_list(record, catalog_phrases=set()) == ["MCP"]
+
+
+def test_watches_no_word_that_next_week_cannot_lift_to_3_of_4():
+    assert watch_list(record_of(["mcp"], ["mcp"], [], []), catalog_phrases=set()) == []
+
+
+def test_watches_no_word_already_proposed_or_in_the_catalog():
+    record = record_of(["mcp"], ["mcp"], ["mcp", "vibe coding"], ["vibe coding"])
+
+    assert watch_list(record, catalog_phrases={"vibe coding"}) == []

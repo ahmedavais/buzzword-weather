@@ -70,7 +70,7 @@ links to. A word or phrase SHALL rank only if at least 3 different stories used 
 ### Requirement: Rise is measured against the 12 weeks before
 For each word, the system SHALL compare this week's mentions per 10,000 titles with its average rate over the 12
 recorded weeks before. Weeks record only words that at least 3 stories used, so in a week where a word went
-unrecorded it SHALL count as 2 stories, the most it could have had. A rise is therefore never overstated. The 10
+unrecorded it SHALL count as 2 stories, the most it could have had. A rise is therefore never overstated. The 7
 words with the largest rise SHALL be shown, largest first. A word that went unrecorded in all 12 weeks before is new,
 and ranks among the others by its rise against those 2 stories a week, not ahead of them.
 
@@ -90,14 +90,24 @@ and ranks among the others by its rise against those 2 stories a week, not ahead
 Each ranked word SHALL get a heat word from its rise: "new front" when it was under 3 stories in each of the 12 weeks
 before (shown as "under 3 stories a week before" instead of a rise),
 "wildfire" at 6 times usual or more, "heatwave" at 3 times or more, and "warm" otherwise. Only words at 2 times usual
-or more SHALL rank, so fewer than 10 can be shown in a quiet week.
+or more SHALL rank, so fewer than 7 can be shown in a quiet week.
 
 #### Scenario: A quiet week
 - **WHEN** only 4 words reach 2 times their usual rate
 - **THEN** the section shows those 4 words
 
-### Requirement: This week on HN section
-The app SHALL show "This week on HN" above the buzzword forecast, naming the recorded week. Each row SHALL show the word,
+### Requirement: The page tells one story
+The page SHALL open with one sentence that tells the arc from a word Hacker News suddenly uses to a buzzword with a
+forecast. The weekly section SHALL be titled "This week's gusts" and come first. The buzzword forecast SHALL be titled
+"The long-range forecast" and come after it, with its title above the buzzword picker.
+
+#### Scenario: A first-time visitor
+- **WHEN** a visitor opens the app for the first time
+- **THEN** they read, in order, the opening sentence, this week's gusts, how a word gets nominated for the forecast,
+  and the long-range forecast
+
+### Requirement: This week's gusts section
+The app SHALL show "This week's gusts" above the long-range forecast, naming the recorded week. Each row SHALL show the word,
 its heat word, its rise against usual and its mentions per 10,000 titles. Raw counts SHALL NOT be shown. Opening a row
 SHALL show up to 3 of that week's titles using the word, each linking to its Hacker News discussion.
 

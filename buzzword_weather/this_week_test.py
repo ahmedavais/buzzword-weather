@@ -65,3 +65,18 @@ def test_shows_the_risers_in_the_order_they_were_ranked():
     rows = this_week_on_hn(record_ending_with(latest)).rows
 
     assert [row.riser.term for row in rows] == ["rust", "mcp"]
+
+
+def test_shows_at_most_7_risers_from_a_week_recorded_with_more():
+    risers = {f"word{number}": [] for number in range(10)}
+    latest = WeekOfWords(10_000, dict.fromkeys(risers, 50), risers)
+
+    assert len(this_week_on_hn(record_ending_with(latest)).rows) == 7
+
+
+def test_names_the_words_one_rising_week_from_the_forecast():
+    record = record_ending_with(WeekOfWords(10_000, {"mcp": 50, "rust": 50}, {"mcp": [], "rust": []}))
+    earlier = record.latest().previous()
+    record = record.with_week(earlier, WeekOfWords(10_000, {"mcp": 50, "rust": 50}, {"mcp": [], "rust": []}))
+
+    assert this_week_on_hn(record, catalog_phrases={"rust"}).watching == ["mcp"]

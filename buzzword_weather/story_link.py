@@ -8,9 +8,9 @@ WORD_JOINER = "⁠"
 
 def story_link(example: Example) -> str:
     story_id, title = example
-    return f"[{_inert(title)}](https://news.ycombinator.com/item?id={story_id})"
+    return f"[{inert(title)}](https://news.ycombinator.com/item?id={story_id})"
 
 
-def _inert(title: str) -> str:
-    escaped = MARKDOWN.sub(r"\\\1", title)
+def inert(text: str) -> str:
+    escaped = MARKDOWN.sub(r"\\\1", text)
     return re.sub(r"(@|\\#)", rf"\1{WORD_JOINER}", escaped)

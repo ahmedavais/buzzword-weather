@@ -36,6 +36,19 @@ second pull request for a candidate that already has one open or closed.
 - **WHEN** Ahmed merges the pull request for "mcp"
 - **THEN** "MCP" appears in the picker under the "rising" era, and the next almanac refresh records its history
 
+### Requirement: The watch list
+Below this week's gusts, the app SHALL name the words not in the catalog that rose in 2 of the last 3 recorded weeks,
+so one more rising week would nominate them, and say so. When there are none, it SHALL say how a word is nominated
+and that none is that close yet. Words already proposed SHALL NOT be on the watch list.
+
+#### Scenario: One week away
+- **WHEN** "mcp" rose in 2 of the last 3 weeks and is not in the catalog
+- **THEN** the app says "mcp" is on the watch list and that one more rising week nominates it for the forecast
+
+#### Scenario: Nothing close
+- **WHEN** no word rose in 2 of the last 3 weeks
+- **THEN** the app says a word that rises three weeks out of four is nominated, and none is that close yet
+
 ### Requirement: The rising era
 The catalog SHALL have a "rising" era for buzzwords promoted from rising words. Ahmed MAY move a buzzword out of it into
 another era at any time.

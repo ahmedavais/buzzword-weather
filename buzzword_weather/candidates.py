@@ -39,16 +39,28 @@ class Candidate:
 
 
 def candidates(record: WeeklyWords, catalog_phrases: set[str]) -> list[Candidate]:
-    looked_at = record.recorded_weeks()[-WEEKS_LOOKED_AT:]
-    risen: dict[str, list[Week]] = {}
-    for week in looked_at:
-        for phrase in record.weeks[week].risers:
-            risen.setdefault(phrase, []).append(week)
     return [
         _candidate(phrase, weeks, record)
-        for phrase, weeks in risen.items()
+        for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT).items()
         if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases
     ]
+
+
+def watch_list(record: WeeklyWords, catalog_phrases: set[str]) -> list[str]:
+    proposed = {candidate.phrase for candidate in candidates(record, catalog_phrases)}
+    return [
+        _candidate(phrase, weeks, record).name
+        for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT - 1).items()
+        if len(weeks) == LEAST_WEEKS_RISEN - 1 and phrase not in catalog_phrases | proposed
+    ]
+
+
+def _weeks_risen(record: WeeklyWords, weeks_back: int) -> dict[str, list[Week]]:
+    risen: dict[str, list[Week]] = {}
+    for week in record.recorded_weeks()[-weeks_back:]:
+        for phrase in record.weeks[week].risers:
+            risen.setdefault(phrase, []).append(week)
+    return risen
 
 
 def with_candidate(catalog_source: str, candidate: Candidate) -> str:

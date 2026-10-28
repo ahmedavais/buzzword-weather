@@ -10,8 +10,9 @@ catalog a steady source of new entries. Their weather comes later, once they've 
 
 - A weekly GitHub Action records the story titles of the finished week (Monday to Sunday, UTC), counts the words and
   two-word phrases in them, and commits the counts to a new `weekly_words.json`, the same way the almanac is committed.
-- The app ranks the 10 words that rose most this week against their usual rate over the 12 weeks before, in mentions
-  per 10,000 titles, and shows them at the top of the page as "This week on HN". Each row has a heat word (warm,
+- The app ranks the 7 words that rose most this week against their usual rate over the 12 weeks before, in mentions
+  per 10,000 titles, and shows them at the top of the page as "This week's gusts", below one sentence that tells how a
+  gusting word becomes a buzzword, and above "The long-range forecast" and a watch list of words one week from it. Each row has a heat word (warm,
   heatwave, wildfire, or new front) and a few example titles that link to Hacker News.
 - Noise is stripped out: common English words, HN boilerplate ("Show HN", "[pdf]", years), the site a story links to,
   and words that appear in fewer than 3 different stories that week.

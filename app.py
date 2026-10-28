@@ -41,6 +41,7 @@ from buzzword_weather.forecast_card import forecast_card
 from buzzword_weather.hacker_news import HackerNews
 from buzzword_weather.periods import Period
 from buzzword_weather.spans import Span
+from buzzword_weather.story_link import inert
 from buzzword_weather.this_week import ThisWeek, this_week_on_hn
 from buzzword_weather.weekly_words import WeeklyWords
 
@@ -67,7 +68,7 @@ def weather_for(name: str) -> Weather:
 
 @st.cache_data(show_spinner=False)
 def this_week_from(recorded: str) -> ThisWeek | None:
-    return this_week_on_hn(WeeklyWords.from_json(recorded))
+    return this_week_on_hn(WeeklyWords.from_json(recorded), {buzzword.phrase for buzzword in CATALOG})
 
 
 def this_week() -> ThisWeek | None:
@@ -79,7 +80,7 @@ def this_week() -> ThisWeek | None:
 
 
 def show_this_week(this_week: ThisWeek) -> None:
-    st.subheader("This week on HN")
+    st.subheader("This week's gusts")
     st.caption(f"Words Hacker News story titles used far more than usual, {this_week.week.label}.")
     if this_week.rows is None:
         st.info("Still gathering 12 weeks of titles to compare against.")
@@ -89,6 +90,15 @@ def show_this_week(this_week: ThisWeek) -> None:
         with st.expander(row.headline):
             for link in row.example_links:
                 st.markdown(f"- {link}")
+    if this_week.rows is not None:
+        show_watch_list(this_week.watching)
+
+
+def show_watch_list(watching: list[str]) -> None:
+    if watching:
+        st.markdown(f"**On the watch list:** {', '.join(inert(name) for name in watching)}. One more rising week and they're nominated for the forecast.")
+    else:
+        st.caption("A word that rises three weeks out of four is nominated for the forecast. None is that close yet.")
 
 
 def starting_buzzwords() -> list[str]:
@@ -104,10 +114,16 @@ all_quarters = tuple(Span.ALL_TIME.periods_before(date.today()))
 
 st.set_page_config(page_title="Buzzword weather", page_icon="🌦️")
 st.title("🌦️ Buzzword weather")
-st.write("The Hacker News forecast for engineering buzzwords.")
+st.write(
+    "Every engineering buzzword starts as a word Hacker News suddenly can't stop saying. Most blow over within a "
+    "week. The ones that keep blowing in get a long-range forecast."
+)
 
 if latest_week := this_week():
     show_this_week(latest_week)
+
+st.subheader("The long-range forecast")
+st.caption("Buzzwords that stuck, and their weather from the last two years of Hacker News.")
 
 terms = st.multiselect(
     "Choose the terms in your forecast",
@@ -131,7 +147,6 @@ except Exception:
     st.error("Hacker News search didn't answer just now. Try again in a minute.")
     st.stop()
 
-st.subheader("The forecast")
 for left, right in zip(terms[::2], terms[1::2], strict=False):
     columns = st.columns(2)
     with columns[0].container(border=True):

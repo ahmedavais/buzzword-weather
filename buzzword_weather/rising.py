@@ -5,7 +5,7 @@ from enum import Enum
 from buzzword_weather.weekly_words import LEAST_STORIES, WeekOfWords
 
 BASELINE_WEEKS = 12
-MOST_RISERS = 10
+MOST_RISERS = 7
 LEAST_RISE = 2.0
 SAME_STORIES_SHARE = 0.7
 

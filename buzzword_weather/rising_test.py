@@ -1,5 +1,5 @@
 from buzzword_weather import rising
-from buzzword_weather.rising import BASELINE_WEEKS, Heat, Riser
+from buzzword_weather.rising import BASELINE_WEEKS, MOST_RISERS, Heat, Riser
 from buzzword_weather.weekly_words import WeekOfWords
 
 TITLES = 10_000
@@ -70,10 +70,10 @@ def test_never_ranks_a_word_from_fewer_than_3_stories():
     assert terms(risers(this_week(mcp=2), quiet_weeks())) == []
 
 
-def test_shows_at_most_10_words():
+def test_shows_at_most_7_words():
     many = {f"word{number}": 10 for number in range(15)}
 
-    assert len(risers(WeekOfWords(TITLES, many), quiet_weeks())) == 10
+    assert len(risers(WeekOfWords(TITLES, many), quiet_weeks())) == MOST_RISERS == 7
 
 
 def test_leaves_out_a_word_whose_stories_are_mostly_those_of_a_word_shown_above_it():
@@ -119,11 +119,11 @@ def test_is_a_new_front_only_when_under_the_floor_in_every_week_before():
 
 
 def test_fills_the_slot_of_a_skipped_word_with_the_next_one_down():
-    eight = {f"word{number}": 10 for number in range(8)}
-    week = this_week(**eight, agent_skills=60, agent=80, filler=6)
+    others = {f"word{number}": 10 for number in range(MOST_RISERS - 2)}
+    week = this_week(**others, agent_skills=60, agent=80, filler=6)
     stories = {**separate_stories(week), "agent skills": set(range(60)), "agent": set(range(80))}
-    weeks_before = quiet_weeks(**dict.fromkeys(eight, 2), agent_skills=5, agent=10, filler=2)
+    weeks_before = quiet_weeks(**dict.fromkeys(others, 2), agent_skills=5, agent=10, filler=2)
 
     found = terms(risers(week, weeks_before, stories))
 
-    assert found == ["agent skills", *eight, "filler"]
+    assert found == ["agent skills", *others, "filler"]
