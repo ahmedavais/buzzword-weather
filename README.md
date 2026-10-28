@@ -57,7 +57,8 @@ A GitHub Action (`.github/workflows/record-weekly-words.yml`) does this every Mo
 search with the integration tests, records, runs the tests and commits the file, which redeploys the app. Then it
 looks for words that rose in at least 3 of the last 4 weeks and aren't in the catalog, and opens a pull request for
 each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word whose pull
-request was closed is never proposed again. GitHub doesn't run CI on pull requests the Action opens, so the Action
+request was closed is never proposed again, nor named on the watch list: each run records the closed candidates in
+`weekly_words.json` (`pass_over.py`). GitHub doesn't run CI on pull requests the Action opens, so the Action
 runs the tests itself before opening one; push a commit to a candidate's branch to run CI on it.
 
 ## Lint it

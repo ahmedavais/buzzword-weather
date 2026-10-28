@@ -46,3 +46,9 @@ def test_rates_a_term_too_rare_to_record_at_most_just_under_the_floor():
 
     assert week.highest_possible_rate("rust") == 50.0
     assert week.highest_possible_rate("mcp") == 2.5
+
+
+def test_remembers_the_candidates_passed_over_across_weeks():
+    record = WeeklyWords().with_passed_over({"mcp"}).with_week(W44, WeekOfWords(titles=1, stories={}))
+
+    assert WeeklyWords.from_json(record.to_json()).passed_over == {"mcp"}

@@ -113,3 +113,10 @@ def test_counts_only_the_risers_the_page_shows():
     unseen = [f"word{number}" for number in range(7)] + ["mcp"]
 
     assert "mcp" not in phrases(candidates(record_of(unseen, unseen, unseen), catalog_phrases=set()))
+
+
+def test_never_proposes_or_watches_a_word_passed_over():
+    record = record_of(["mcp"], ["mcp", "sora"], ["mcp", "sora"]).with_passed_over({"mcp", "sora"})
+
+    assert candidates(record, catalog_phrases=set()) == []
+    assert watch_list(record, catalog_phrases=set()) == []

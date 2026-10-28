@@ -24,8 +24,7 @@ class Candidate:
 
     @property
     def slug(self) -> str:
-        spelled = "".join(SPELLED_OUT.get(character, character) for character in self.phrase)
-        return re.sub(r"[^a-z0-9]+", "-", spelled).strip("-")
+        return slug_of(self.phrase)
 
     @property
     def pull_request_body(self) -> str:
@@ -43,7 +42,7 @@ def candidates(record: WeeklyWords, catalog_phrases: set[str]) -> list[Candidate
     return [
         _candidate(phrase, weeks, record)
         for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT).items()
-        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases
+        if len(weeks) >= LEAST_WEEKS_RISEN and phrase not in catalog_phrases and slug_of(phrase) not in record.passed_over
     ]
 
 
@@ -52,8 +51,15 @@ def watch_list(record: WeeklyWords, catalog_phrases: set[str]) -> list[str]:
     return [
         _candidate(phrase, weeks, record).name
         for phrase, weeks in _weeks_risen(record, WEEKS_LOOKED_AT - 1).items()
-        if len(weeks) == LEAST_WEEKS_RISEN - 1 and phrase not in catalog_phrases | proposed
+        if len(weeks) == LEAST_WEEKS_RISEN - 1
+        and phrase not in catalog_phrases | proposed
+        and slug_of(phrase) not in record.passed_over
     ]
+
+
+def slug_of(phrase: str) -> str:
+    spelled = "".join(SPELLED_OUT.get(character, character) for character in phrase)
+    return re.sub(r"[^a-z0-9]+", "-", spelled).strip("-")
 
 
 def _weeks_risen(record: WeeklyWords, weeks_back: int) -> dict[str, list[Week]]:
