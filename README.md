@@ -53,8 +53,10 @@ holding more stories than one answer returns is halved until none are lost. To r
 uv run python record_weekly_words.py
 ```
 
-A GitHub Action (`.github/workflows/record-weekly-words.yml`) does this every Monday: it checks the real Hacker News
-search with the integration tests, records, runs the tests and commits the file, which redeploys the app. Then it
+A GitHub Action (`.github/workflows/record-weekly-words.yml`) does this every day: it checks the real Hacker News
+search with the integration tests, records, runs the tests and commits the file when it changed, which redeploys the
+app. A week is new only on Mondays, so the other days commit nothing; they are there because GitHub sometimes drops a
+scheduled run, and the next day's run records the week the dropped one missed. Then it
 looks for words among the 7 shown in at least 3 of the last 4 weeks that aren't in the catalog, and opens a pull request for
 each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word is proposed
 once: each run records every candidate pull request already opened in `weekly_words.json` (`remember_proposals.py`),
