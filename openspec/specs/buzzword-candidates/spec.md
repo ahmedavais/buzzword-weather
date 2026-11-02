@@ -46,8 +46,8 @@ Below this week's gusts, the app SHALL name the words not in the catalog that ro
 so one more rising week would nominate them, and say so. When there are none, it SHALL say how a word is nominated
 and that none is that close yet. A word that already has a candidate pull request, open or closed, SHALL NOT be on
 the watch list. The weekly recording SHALL remember every candidate pull request it finds in the weekly record, so the
-app knows them without asking GitHub. A pull request opened or closed during a week counts from the next weekly
-recording on.
+app knows them without asking GitHub. The recording runs daily, so a pull request opened or closed
+counts from the next day's recording on.
 
 #### Scenario: A word Ahmed passed over
 - **WHEN** Ahmed closed the pull request for "rust", and "rust" rose in 2 of the last 3 weeks
