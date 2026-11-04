@@ -2,7 +2,7 @@ name: Keep the app awake
 
 on:
   schedule:
-    - cron: "41 */6 * * *"
+    - cron: "41 */4 * * *"
   workflow_dispatch:
 
 permissions:

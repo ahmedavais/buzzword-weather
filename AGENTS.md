@@ -28,7 +28,7 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
   when it changes nothing but dependency manifests and lock files.
 - The refresh Action runs the tests before it commits a new almanac. The weekly words Action runs the integration
   tests and then the tests before it commits `weekly_words.json`, and before each candidate pull request it opens.
-  Keep-awake visits the app every 6 hours.
+  Keep-awake visits the app every 4 hours and waits up to 10 minutes for it to wake.
 
 ## Conventions
 
