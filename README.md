@@ -93,9 +93,11 @@ deploy.
 ## Keep it awake
 
 Community Cloud puts an app to sleep after about 12 hours without visitors, and the next visitor waits through a
-cold boot. A GitHub Action (`.github/workflows/keep-awake.yml`) visits the app every 6 hours in a headless browser
-and clicks the wake button if the app fell asleep anyway. A plain HTTP request doesn't count as a visit. To visit
-it by hand:
+cold boot. A GitHub Action (`.github/workflows/keep-awake.yml`) visits the app every 4 hours in a headless browser,
+so two dropped scheduled runs still leave it awake. A cold boot can take a few minutes, so the visit makes up to 10
+tries: each clicks the wake button if it shows, waits up to a minute for the app's title, then reloads the page
+(`buzzword_weather/waking.py`). A wake that never takes fails after 12 to 17 minutes, depending on how long the reloads take. A plain HTTP request doesn't count as a visit. To visit it
+by hand:
 
 ```bash
 uv run --group keep-awake playwright install chromium
@@ -144,4 +146,5 @@ Action runs them before it commits a new almanac:
 - `buzzword_weather/candidates.py`: words that keep rising, proposed for the catalog
 - `buzzword_weather/code_version.py`: the version of the package's code, from its source files
 - `app.py`: the Streamlit page; it reloads the code after a deploy, then only renders
-- `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep
+- `keep_awake.py`: visits the deployed app so Community Cloud doesn't put it to sleep; `buzzword_weather/waking.py`
+  reloads it until it shows, a few times over
