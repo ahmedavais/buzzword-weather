@@ -19,14 +19,8 @@ def main() -> None:
         browser = playwright.chromium.launch()
         page = browser.new_page()
         page.goto(APP_URL)
-        wake_button = page.get_by_role("button", name=WAKE_BUTTON_TEXT)
-        try:
-            wake_button.click(timeout=WAKE_BUTTON_GRACE_MS)
-            print("the app was asleep, woke it up", flush=True)
-        except PlaywrightTimeoutError:
-            print("the app was awake", flush=True)
         awake = awake_within_tries(lambda: shows_the_app(page), lambda: reload(page))
-        print(f"visited {page.title()}" if awake else f"the app didn't come up within {TRIES} minutes", flush=True)
+        print(f"visited {page.title()}" if awake else f"the app didn't come up after {TRIES} tries", flush=True)
         browser.close()
     if not awake:
         sys.exit(1)
@@ -34,10 +28,20 @@ def main() -> None:
 
 def shows_the_app(page: Page) -> bool:
     try:
+        wake_if_asleep(page)
         page.wait_for_function(f"document.title.startsWith('{APP_TITLE}')", timeout=TRY_TIMEOUT_MS)
         return True
-    except PlaywrightTimeoutError:
+    except PlaywrightError as error:
+        print(f"not up yet: {error.message.splitlines()[0]}", flush=True)
         return False
+
+
+def wake_if_asleep(page: Page) -> None:
+    try:
+        page.get_by_role("button", name=WAKE_BUTTON_TEXT).click(timeout=WAKE_BUTTON_GRACE_MS)
+        print("the app was asleep, clicked the wake button", flush=True)
+    except PlaywrightTimeoutError:
+        pass
 
 
 def reload(page: Page) -> None:

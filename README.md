@@ -94,9 +94,9 @@ deploy.
 
 Community Cloud puts an app to sleep after about 12 hours without visitors, and the next visitor waits through a
 cold boot. A GitHub Action (`.github/workflows/keep-awake.yml`) visits the app every 4 hours in a headless browser,
-so two dropped scheduled runs still leave it awake, and clicks the wake button if the app fell asleep anyway. A cold
-boot can take a few minutes, so the visit waits up to a minute for the app's title, reloads, and tries again for up to
-10 minutes before it fails (`buzzword_weather/waking.py`). A plain HTTP request doesn't count as a visit. To visit it
+so two dropped scheduled runs still leave it awake. A cold boot can take a few minutes, so the visit makes up to 10
+tries: each clicks the wake button if it shows, waits up to a minute for the app's title, then reloads the page
+(`buzzword_weather/waking.py`). A wake that never takes fails after 10 to 15 minutes. A plain HTTP request doesn't count as a visit. To visit it
 by hand:
 
 ```bash
