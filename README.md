@@ -61,15 +61,14 @@ next day's run records the week the dropped one missed. Then it
 looks for words among the 7 shown in at least 3 of the last 4 weeks that aren't in the catalog, and opens a pull request for
 each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word is proposed
 once: each run records every candidate pull request already opened in `weekly_words.json` (`remember_proposals.py`),
-so a word whose pull request is open or was closed is never proposed again, nor named on the watch list. Candidates
-come from the weekly words on main, so a week's new risers are proposed the day after its weekly words merge.
+so a word whose pull request is open or was closed is never proposed again, nor named on the watch list.
 
-Both Actions sign in as the buzzword-weather data bot, a GitHub App installed on this repo only, because main takes
-changes only through a pull request with CI passing, and GitHub doesn't run CI on pull requests opened with an
-Action's own token. Each run mints a short-lived token from the App's client ID (repo variable `DATA_BOT_CLIENT_ID`)
-and private key (secret `DATA_BOT_PRIVATE_KEY`). The data pull requests reuse the branches `data/almanac` and
-`data/weekly-words` (`.github/actions/propose-data-change`). The adversarial review skips pull requests opened by bots
-other than Renovate.
+Both Actions call `.github/workflows/record-data.yml`, which records, tests and proposes the data as the
+buzzword-weather data bot, a GitHub App installed on this repo only. main takes changes only through a pull request
+with CI passing, and GitHub doesn't run CI on pull requests opened with an Action's own token. Each run mints a
+short-lived token from the App's client ID (repo variable `DATA_BOT_CLIENT_ID`) and private key (secret
+`DATA_BOT_PRIVATE_KEY`). The data pull requests reuse the branches `data/almanac` and `data/weekly-words`. The
+adversarial review skips pull requests opened by bots other than Renovate.
 
 ## Lint it
 

@@ -13,76 +13,33 @@ concurrency:
 
 jobs:
   record:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v3.3.0
-        id: data-bot
-        with:
-          client-id: ${{ vars.DATA_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.DATA_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@v7
-        with:
-          token: ${{ steps.data-bot.outputs.token }}
-      - uses: astral-sh/setup-uv@v10.3.0
-      - run: uv sync --locked
-      - name: Check the Hacker News search still answers as expected
-        run: uv run pytest -m integration
-      - run: uv run python record_weekly_words.py
-      - name: Remember every candidate already proposed, open, closed or merged
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -o pipefail
-          gh pr list --state all --limit 1000 --json headRefName \
-            --jq '.[].headRefName | select(startswith("candidate/")) | ltrimstr("candidate/")' \
-            | xargs -r uv run python remember_proposals.py
-      - name: Check the weekly words before committing them
-        run: uv run pytest
-      - name: Propose the weekly words if they changed
-        uses: ./.github/actions/propose-data-change
-        with:
-          token: ${{ steps.data-bot.outputs.token }}
-          app-slug: ${{ steps.data-bot.outputs.app-slug }}
-          file: weekly_words.json
-          branch: data/weekly-words
-          title: "chore: Record the weekly words"
-
-  propose:
-    needs: record
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v3.3.0
-        id: data-bot
-        with:
-          client-id: ${{ vars.DATA_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.DATA_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.ref_name }}
-          token: ${{ steps.data-bot.outputs.token }}
-      - uses: astral-sh/setup-uv@v10.3.0
-      - run: uv sync --locked
-      - name: Open a pull request for each new candidate buzzword
-        env:
-          GH_TOKEN: ${{ steps.data-bot.outputs.token }}
-          APP_SLUG: ${{ steps.data-bot.outputs.app-slug }}
-        run: |
-          git config user.name "$APP_SLUG[bot]"
-          git config user.email "$(gh api "/users/$APP_SLUG%5Bbot%5D" --jq .id)+$APP_SLUG[bot]@users.noreply.github.com"
-          uv run python find_candidates.py > candidates.jsonl
-          while IFS= read -r candidate; do
-            phrase=$(jq -r .phrase <<< "$candidate")
-            name=$(jq -r .name <<< "$candidate")
-            branch="candidate/$(jq -r .slug <<< "$candidate")"
-            if [ -n "$(gh pr list --head "$branch" --state all --json number --jq '.[].number')" ]; then
-              echo "Already proposed $name"
-              continue
-            fi
-            git checkout -q -B "$branch" "origin/${{ github.ref_name }}"
-            uv run python add_candidate.py "$phrase"
-            uv run pytest -q
-            git commit -qam "feat: Add $name to the catalog as a rising buzzword"
-            git push -q --force origin "$branch"
-            jq -r .body <<< "$candidate" > body.md
-            gh pr create --head "$branch" --base "${{ github.ref_name }}" --title "feat: Add $name to the catalog" --body-file body.md
-          done < candidates.jsonl
+    uses: ./.github/workflows/record-data.yml
+    with:
+      record: |
+        uv run pytest -m integration
+        uv run python record_weekly_words.py
+        gh pr list --state all --limit 1000 --json headRefName \
+          --jq '.[].headRefName | select(startswith("candidate/")) | ltrimstr("candidate/")' \
+          | xargs -r uv run python remember_proposals.py
+      file: weekly_words.json
+      branch: data/weekly-words
+      title: "chore: Record the weekly words"
+      then: |
+        uv run python find_candidates.py > candidates.jsonl
+        while IFS= read -r candidate; do
+          phrase=$(jq -r .phrase <<< "$candidate")
+          name=$(jq -r .name <<< "$candidate")
+          branch="candidate/$(jq -r .slug <<< "$candidate")"
+          if [ -n "$(gh pr list --head "$branch" --state all --json number --jq '.[].number')" ]; then
+            echo "Already proposed $name"
+            continue
+          fi
+          git checkout -q -B "$branch" "origin/${{ github.ref_name }}"
+          uv run python add_candidate.py "$phrase"
+          uv run pytest -q
+          git commit -qam "feat: Add $name to the catalog as a rising buzzword"
+          git push -q --force origin "$branch"
+          jq -r .body <<< "$candidate" > body.md
+          gh pr create --head "$branch" --base "${{ github.ref_name }}" --title "feat: Add $name to the catalog" --body-file body.md
+        done < candidates.jsonl
+    secrets: inherit
