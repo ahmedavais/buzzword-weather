@@ -73,3 +73,7 @@ def test_leaves_out_money_amounts():
 
 def test_leaves_out_cve_ids():
     assert terms_in("PHP2Shell (CVE-2026-109618) exploit") == {"php2shell", "exploit"}
+
+
+def test_leaves_out_month_and_weekday_names():
+    assert terms_in("Free in November, back on Monday") == {"free", "back"}

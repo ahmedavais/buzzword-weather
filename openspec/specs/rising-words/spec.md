@@ -50,7 +50,7 @@ stories using it that week also use a word or phrase ranked above it, so one new
 - **THEN** "rust" counts once for that title
 
 ### Requirement: Noise is not counted
-The system SHALL ignore common English words; HN boilerplate such as "Show HN", "Ask HN", "Launch HN", "Tell HN",
+The system SHALL ignore common English words; month and weekday names; HN boilerplate such as "Show HN", "Ask HN", "Launch HN", "Tell HN",
 bracketed tags like "[pdf]" and "[video]", bare numbers and years, money amounts like "$25B", and CVE ids; and any word that is part of the domain the story
 links to. A word or phrase SHALL rank only if at least 3 different stories used it that week.
 
@@ -61,6 +61,10 @@ links to. A word or phrase SHALL rank only if at least 3 different stories used 
 #### Scenario: A word in the story's own domain
 - **WHEN** a story titled "GitHub Copilot pricing" links to github.blog
 - **THEN** "github" is not counted for that title, and "copilot" is
+
+#### Scenario: A new month
+- **WHEN** 21 titles in a week say "Free in November" or "November update"
+- **THEN** "november" is not counted, so the turn of a month never reads as a rising word
 
 #### Scenario: A one-story wonder
 - **WHEN** a word appears in only 2 different stories this week
