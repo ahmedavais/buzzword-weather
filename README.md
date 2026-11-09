@@ -43,7 +43,7 @@ changed, which redeploys the app. Run it by hand from the Actions tab after addi
 
 `weekly_words.json` records, for each of the last 13 finished weeks (Monday to Sunday, UTC), how many story titles
 Hacker News had, how many of them used each word or two-word phrase that at least 3 stories used, and that week's
-risers with up to 3 example titles. Common English words, "Show HN" and the like, bracketed tags, numbers, money
+risers with up to 3 example titles. Common English words, month and weekday names, "Show HN" and the like, bracketed tags, numbers, money
 amounts, CVE ids and the words of a story's own site are left out. A word whose stories are mostly the stories of a
 word ranked above it is skipped, so one news story takes one row. Risers are ranked as each week is recorded; after
 changing how they're ranked, empty `weekly_words.json` and run the Action to record the weeks again. Story titles come from the Hacker News search in 6-hour slices, and a slice

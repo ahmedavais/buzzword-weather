@@ -26,6 +26,12 @@ STOPWORDS = frozenset(
         "yourself", "yourselves", "hn"
     ]
 )
+CALENDAR_WORDS = frozenset(
+    [
+        "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november",
+        "december", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
+    ]
+)
 
 
 def terms_in(title: str, url: str | None = None) -> set[str]:
@@ -45,7 +51,7 @@ def _kept(piece: str, site_words: set[str]) -> str | None:
     if not match:
         return None
     word = re.sub(r"['’]s$", "", piece.rstrip(TRAILING)).rstrip(TRAILING)
-    if len(word) < 2 or word in STOPWORDS or word in site_words or NUMBER.match(word):
+    if len(word) < 2 or word in STOPWORDS or word in CALENDAR_WORDS or word in site_words or NUMBER.match(word):
         return None
     return word
 

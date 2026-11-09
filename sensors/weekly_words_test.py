@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from buzzword_weather.periods import finished_weeks_before
-from buzzword_weather.titles import STOPWORDS
+from buzzword_weather.titles import CALENDAR_WORDS, STOPWORDS
 from buzzword_weather.weekly_words import WeeklyWords
 
 RECORD = WeeklyWords.from_json((Path(__file__).parent.parent / "weekly_words.json").read_text())
@@ -33,12 +33,12 @@ def test_counts_a_plausible_number_of_titles_every_week():
     assert thin == [], f"Too few story titles were recorded for {', '.join(thin)}; the fetch may be losing stories"
 
 
-def test_never_ranks_a_common_word_or_a_number():
+def test_never_ranks_a_common_word_a_calendar_word_or_a_number():
     junk = [
         term
         for week in RECORD.recorded_weeks()
         for term in RECORD.weeks[week].risers
-        if any(word in STOPWORDS or word.isdigit() for word in term.split(" "))
+        if any(word in STOPWORDS | CALENDAR_WORDS or word.isdigit() for word in term.split(" "))
     ]
 
     assert junk == []

@@ -1,4 +1,6 @@
-from buzzword_weather.titles import terms_in
+import calendar
+
+from buzzword_weather.titles import CALENDAR_WORDS, terms_in
 
 
 def test_finds_words_and_two_word_phrases_in_lowercase():
@@ -73,3 +75,14 @@ def test_leaves_out_money_amounts():
 
 def test_leaves_out_cve_ids():
     assert terms_in("PHP2Shell (CVE-2026-109618) exploit") == {"php2shell", "exploit"}
+
+
+def test_leaves_out_month_and_weekday_names():
+    assert terms_in("Free in November, back on Monday") == {"free", "back"}
+
+
+def test_leaves_out_every_month_and_weekday_name():
+    names = {name.lower() for name in [*calendar.month_name, *calendar.day_name] if name}
+
+    assert names == CALENDAR_WORDS
+    assert all(terms_in(name.title()) == set() for name in names)
