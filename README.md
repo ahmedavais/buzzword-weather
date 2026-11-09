@@ -36,8 +36,8 @@ uv run python record_almanac.py
 ```
 
 It searches only for counts the almanac lacks, one request at a time with a short pause. A GitHub Action
-(`.github/workflows/refresh-almanac.yml`) does this on the 3rd of every month and commits the almanac when it
-changed, which redeploys the app. Run it by hand from the Actions tab after adding buzzwords to the catalog.
+(`.github/workflows/refresh-almanac.yml`) does this on the 3rd of every month and, when the almanac changed,
+opens a pull request that merges itself once CI passes, which redeploys the app. Run it by hand from the Actions tab after adding buzzwords to the catalog.
 
 ## Record the weekly words
 
@@ -54,15 +54,21 @@ uv run python record_weekly_words.py
 ```
 
 A GitHub Action (`.github/workflows/record-weekly-words.yml`) does this every day: it checks the real Hacker News
-search with the integration tests, records, runs the tests and commits the file when it changed, which redeploys the
-app. A week is new only on Mondays, so the other days commit only when a candidate pull request was opened or closed
-since the last run, and usually commit nothing. They are there because GitHub sometimes drops a scheduled run, and the
+search with the integration tests, records, runs the tests and, when the file changed, opens a pull request that merges
+itself once CI passes, which redeploys the app. A week is new only on Mondays, so the other days propose a change only when a candidate pull request was opened or closed
+since the last run, and usually propose nothing. They are there because GitHub sometimes drops a scheduled run, and the
 next day's run records the week the dropped one missed. Then it
 looks for words among the 7 shown in at least 3 of the last 4 weeks that aren't in the catalog, and opens a pull request for
 each that adds it to the catalog in the "rising" era (`find_candidates.py`, `add_candidate.py`). A word is proposed
 once: each run records every candidate pull request already opened in `weekly_words.json` (`remember_proposals.py`),
-so a word whose pull request is open or was closed is never proposed again, nor named on the watch list. GitHub doesn't run CI on pull requests the Action opens, so the Action
-runs the tests itself before opening one; push a commit to a candidate's branch to run CI on it.
+so a word whose pull request is open or was closed is never proposed again, nor named on the watch list.
+
+Both Actions call `.github/workflows/record-data.yml`, which records, tests and proposes the data as the
+buzzword-weather data bot, a GitHub App installed on this repo only. main takes changes only through a pull request
+with CI passing, and GitHub doesn't run CI on pull requests opened with an Action's own token. Each run mints a
+short-lived token from the App's client ID (repo variable `DATA_BOT_CLIENT_ID`) and private key (secret
+`DATA_BOT_PRIVATE_KEY`). The data pull requests reuse the branches `data/almanac` and `data/weekly-words`. The
+adversarial review skips pull requests opened by bots other than Renovate.
 
 ## Lint it
 

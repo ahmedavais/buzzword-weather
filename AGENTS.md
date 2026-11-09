@@ -26,8 +26,10 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
   CI fails on one, the `failed-update-alarm` job in `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists
   every other pull request job, so add a new job there too. The adversarial review skips a Renovate pull request only
   when it changes nothing but dependency manifests and lock files.
-- The refresh Action runs the tests before it commits a new almanac. The weekly words Action runs the integration
-  tests and then the tests before it commits `weekly_words.json`, and before each candidate pull request it opens.
+- The refresh Action runs the tests before it proposes a new almanac. The weekly words Action runs the integration
+  tests and then the tests before it proposes `weekly_words.json`, and before each candidate pull request it opens.
+  Both open their pull requests as the buzzword-weather data bot, so CI runs on them; the data ones merge themselves
+  once CI passes. main takes changes only through a pull request with `test` and `duplication / new-clones` passing.
   Keep-awake visits the app every 4 hours and makes up to 10 tries to wake it.
 
 ## Conventions

@@ -6,26 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   refresh:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.2
-      - run: uv sync --locked
-      - run: uv run python record_almanac.py
-      - name: Check the almanac before committing it
-        run: uv run pytest
-      - name: Commit the almanac if it changed
-        run: |
-          if git diff --quiet -- almanac.json; then
-            echo "The almanac is already up to date"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add almanac.json
-          git commit -m "chore: Refresh the almanac"
-          git push
+    uses: ./.github/workflows/record-data.yml
+    with:
+      record: uv run python record_almanac.py
+      file: almanac.json
+      branch: data/almanac
+      title: "chore: Refresh the almanac"
+    secrets: inherit

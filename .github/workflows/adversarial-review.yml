@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   review:
+    if: github.event.pull_request.user.type != 'Bot' || github.event.pull_request.user.login == 'renovate[bot]'
     uses: ahmedavais/karkhana/.github/workflows/adversarial-review.yml@main
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
