@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv sync --locked --only-group keep-awake
       - name: Install Chromium, trying again when Ubuntu's package servers don't answer
         run: |
