@@ -24,7 +24,7 @@ A Streamlit toy from ahmedavais.com: how often Hacker News mentions each enginee
   Actions. Patch and minor updates arrive as one pull request on Mondays and merge themselves once every check passes,
   which deploys them. The lock file refresh and any major arrive the same day and stay open, assigned to Ahmed. When
   CI fails on one, the `failed-update-alarm` job in `.github/workflows/ci.yml` assigns it to Ahmed; its `needs` lists
-  every other pull request job, so add a new job there too. The adversarial review skips a Renovate pull request only
+  every other pull request job, so add a new job there too. Once a day, `.github/workflows/watch-stalled-updates.yml`, shared from karkhana, assigns Ahmed any Renovate pull request still open and unassigned three days after it opened, with a comment naming the checks holding it. The adversarial review skips a Renovate pull request only
   when it changes nothing but dependency manifests and lock files.
 - The refresh Action runs the tests before it proposes a new almanac. The weekly words Action runs the integration
   tests and then the tests before it proposes `weekly_words.json`, and before each candidate pull request it opens.
