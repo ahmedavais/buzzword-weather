@@ -1,0 +1,16 @@
+name: Watch stalled updates
+
+on:
+  schedule:
+    - cron: "17 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stalled-update-alarm:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ahmedavais/karkhana/.github/workflows/stalled-update-alarm.yml@main
